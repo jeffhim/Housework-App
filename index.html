@@ -2,15 +2,30 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>家務記錄 App</title>
     
-    <!-- Inline PWA Configuration -->
-    <meta name="theme-color" content="#4CAF50">
+    <!-- iOS PWA Configuration -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="家務記錄">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSIjNENBRjUwIi8+Cjx0ZXh0IHg9Ijk2IiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI2MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7lr7zopoE8L3RleHQ+Cjwvc3ZnPgo=">
+    <meta name="theme-color" content="#4CAF50">
+    
+    <!-- Your Custom iOS Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="./icon-192.png">
+    
+    <!-- Standard favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./icon-192.png">
     
     <style>
         * {
@@ -20,28 +35,32 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: 0;
             -webkit-user-select: none;
             user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: 100%;
         }
 
+        /* iOS Safe Area Support */
         .container {
             max-width: 400px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            overflow: hidden;
-            min-height: calc(100vh - 20px);
+            border-radius: 0;
+            box-shadow: none;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .header {
             background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
-            padding: 30px 20px;
+            padding: 40px 20px 30px;
             text-align: center;
             position: relative;
         }
@@ -99,6 +118,7 @@
             transition: all 0.3s ease;
             -webkit-appearance: none;
             appearance: none;
+            background: white;
         }
 
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -192,6 +212,7 @@
             font-size: 12px;
             margin-left: 10px;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .empty-state {
@@ -270,6 +291,7 @@
             font-size: 24px;
             cursor: pointer;
             color: #6c757d;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .settlement-result {
@@ -288,57 +310,64 @@
             margin-bottom: 10px;
         }
 
-        /* PWA Install Prompt */
-        .install-prompt {
-            background: #4CAF50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1001;
-        }
-
-        .install-btn {
-            background: white;
-            color: #4CAF50;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin-left: 10px;
-            font-weight: bold;
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 0;
-            }
-            
-            .container {
-                border-radius: 0;
-                min-height: 100vh;
-            }
-        }
-
-        @media (display-mode: standalone) {
+        /* iOS Status Bar Detection */
+        @supports (padding-top: env(safe-area-inset-top)) {
             body {
                 padding-top: env(safe-area-inset-top);
-                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        /* Standalone mode detection */
+        @media all and (display-mode: standalone) {
+            .container {
+                border-radius: 0;
             }
         }
     </style>
+
+    <!-- Inline Manifest for PWA -->
+    <script>
+        // Create manifest with your custom icon
+        const manifestData = {
+            "name": "家務記錄 App",
+            "short_name": "家務記錄",
+            "description": "安全的家務記錄和結算應用程式",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#4CAF50",
+            "orientation": "portrait",
+            "scope": "./",
+            "icons": [
+                {
+                    "src": "./icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "./icon-192.png",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                },
+                {
+                    "src": "./icon-192.png",
+                    "sizes": "180x180",
+                    "type": "image/png"
+                }
+            ]
+        };
+
+        // Register manifest
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+    </script>
 </head>
 <body>
-    <!-- Install Prompt -->
-    <div id="installPrompt" class="install-prompt">
-        <span>📱 安裝此 App 到主螢幕?</span>
-        <button class="install-btn" onclick="installApp()">安裝</button>
-        <button class="install-btn" onclick="dismissInstall()" style="background: transparent; color: white;">取消</button>
-    </div>
-
     <div class="container">
         <div class="header">
             <h1>🏠 家務記錄</h1>
@@ -431,80 +460,18 @@
         // Global variables
         let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
         const people = ['阿媽', '老豆', '阿仔'];
-        let deferredPrompt;
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadTransactions();
             updateStats();
             
-            // Register inline manifest
-            registerInlineManifest();
-            
-            // Check if running as PWA
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('Running as PWA! ✅');
+            // Check if running as standalone PWA
+            if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('Running as standalone PWA! ✅');
+                document.body.style.paddingTop = 'env(safe-area-inset-top)';
             }
         });
-
-        // Register inline manifest for PWA
-        function registerInlineManifest() {
-            const manifestData = {
-                "name": "家務記錄 App",
-                "short_name": "家務記錄",
-                "description": "安全的家務記錄和結算應用程式",
-                "start_url": window.location.pathname,
-                "display": "standalone",
-                "background_color": "#ffffff",
-                "theme_color": "#4CAF50",
-                "orientation": "portrait-primary",
-                "scope": "/",
-                "icons": [
-                    {
-                        "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSIjNENBRjUwIi8+Cjx0ZXh0IHg9Ijk2IiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI2MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7lr7zopoE8L3RleHQ+Cjwvc3ZnPgo=",
-                        "sizes": "192x192",
-                        "type": "image/svg+xml"
-                    },
-                    {
-                        "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSIjNENBRjUwIi8+Cjx0ZXh0IHg9IjI1NiIgeT0iMjYwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWvvOimg3wvdGV4dD4KPC9zdmc+Cg==",
-                        "sizes": "512x512",
-                        "type": "image/svg+xml"
-                    }
-                ]
-            };
-
-            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-            const manifestURL = URL.createObjectURL(manifestBlob);
-            
-            const link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = manifestURL;
-            document.head.appendChild(link);
-        }
-
-        // PWA Install Prompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installPrompt').style.display = 'block';
-        });
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('App installed!');
-                    }
-                    deferredPrompt = null;
-                    document.getElementById('installPrompt').style.display = 'none';
-                });
-            }
-        }
-
-        function dismissInstall() {
-            document.getElementById('installPrompt').style.display = 'none';
-        }
 
         // Add transaction
         function addTransaction() {
@@ -534,7 +501,10 @@
             updateStats();
             clearForm();
 
-            // Success feedback
+            // Success feedback with haptic
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(100);
+            }
             alert('記錄已成功新增！');
         }
 
