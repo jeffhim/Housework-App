@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家務記錄 App</title>
+    
+    <!-- iOS App Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iMzAiIGZpbGw9IiM0Q0FGNTASCZ8L3JlY3Q+CjxwYXRoIGQ9Ik05MCAyMEw5MCA2MEwxMzAgNDBMOTAgMjBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNDBMOTAgNjBMNTAgODBWNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNOTAgMTIwTDkwIDE2MEwxMzAgMTQwTDkwIDEyMFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01MCAxNDBMOTAgMTYwTDUwIDE4MFYxNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="家務記錄">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .sync-status {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.2);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #4CAF50;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+        }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+        }
+
+        .btn-danger {
+            background: #f44336;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 5px 10px;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .chore-item, .log-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #FF6B6B, #ee5a52);
+            color: white;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .balance h3 {
+            margin-bottom: 10px;
+        }
+
+        .balance .amount {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .person-select {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .person-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .person-btn.selected {
+            border-color: #4CAF50;
+            background: #4CAF50;
+            color: white;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .setup-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .setup-section h3 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .setup-section p {
+            color: #1976d2;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .authorized-users {
+            background: #f1f8e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .authorized-users h4 {
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .authorized-users .user {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px 0;
+            font-size: 13px;
+            color: #388e3c;
+            border: 1px solid #c8e6c9;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏠</div>
+            <h1>家務記錄 App</h1>
+            <div class="subtitle">記錄家務，計算差額</div>
+            <div class="sync-status" id="sync-status">
+                <span>離線模式</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('record')">記錄</button>
+                <button class="tab" onclick="showTab('manage')">管理</button>
+                <button class="tab" onclick="showTab('balance')">結算</button>
+                <button class="tab" onclick="showTab('sync')">同步</button>
+            </div>
+
+            <!-- Sync Tab -->
+            <div id="sync" class="tab-content">
+                <div class="setup-section">
+                    <h3>🔒 安全雲端同步</h3>
+                    <p>使用 Google Apps Script 進行安全的雲端同步，只有授權使用者可以存取資料。</p>
+                </div>
+
+                <div class="authorized-users">
+                    <h4>🔐 授權使用者</h4>
+                    <div class="user">📧 jeffhimcch@gmail.com</div>
+                    <div class="user">📧 dorothylaw0603@gmail.com</div>
+                </div>
+
+                <div class="section">
+                    <h2>連接狀態</h2>
+                    <button class="btn btn-secondary" onclick="testConnection()">測試連接</button>
+                    <small style="color: #666; font-size: 12px; display: block; margin-top: 10px;">
+                        點擊測試連接會要求 Google 帳戶登入驗證
+                    </small>
+                </div>
+
+                <div class="section">
+                    <h2>同步操作</h2>
+                    <button class="btn" onclick="syncToCloud()" id="sync-btn">
+                        <span id="sync-text">上傳到雲端</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="syncFromCloud()" id="download-btn">
+                        <span id="download-text">從雲端下載</span>
+                    </button>
+                </div>
+
+                <div id="sync-messages"></div>
+            </div>
+
+            <!-- Record Chores Tab -->
+            <div id="record" class="tab-content active">
+                <div class="section">
+                    <h2>記錄完成的家務</h2>
+                    
+                    <div class="person-select">
+                        <button class="person-btn selected" id="person1-btn" onclick="selectPerson('person1')">
+                            <div id="person1-name">Jeff</div>
+                        </button>
+                        <button class="person-btn" id="person2-btn" onclick="selectPerson('person2')">
+                            <div id="person2-name">Dorothy</div>
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>選擇家務：</label>
+                        <select id="chore-select">
+                            <option value="">請選擇家務</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" onclick="addChoreLog()">記錄完成</button>
+                </div>
+
+                <div class="section">
+                    <h2>最近記錄</h2>
+                    <div id="recent-logs"></div>
+                </div>
+            </div>
+
+            <!-- Manage Chores Tab -->
+            <div id="manage" class="tab-content">
+                <div class="section">
+                    <h2>設定人員名稱</h2>
+                    <div class="form-group">
+                        <label>第一位：</label>
+                        <input type="text" id="name1" value="Jeff" onchange="updateNames()">
+                    </div>
+                    <div class="form-group">
+                        <label>第二位：</label>
+                        <input type="text" id="name2" value="Dorothy" onchange="updateNames()">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>新增家務類型</h2>
+                    <div class="form-group">
+                        <label>家務名稱：</label>
+                        <input type="text" id="chore-name" placeholder="例如：洗碗">
+                    </div>
+                    <div class="form-group">
+                        <label>金額（HKD）：</label>
+                        <input type="number" id="chore-amount" placeholder="10" min="0" step="1">
+                    </div>
+                    <button class="btn" onclick="addChoreType()">新增家務</button>
+                </div>
+
+                <div class="section">
+                    <h2>現有家務類型</h2>
+                    <div id="chore-types"></div>
+                </div>
+            </div>
+
+            <!-- Balance Tab -->
+            <div id="balance" class="tab-content">
+                <div class="stats">
+                    <div class="stat-card">
+                        <h4 id="person1-stat">Jeff的收入</h4>
+                        <div class="value" id="person1-total">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4 id="person2-stat">Dorothy的收入</h4>
+                        <div class="value" id="person2-total">$0</div>
+                    </div>
+                </div>
+
+                <div class="balance">
+                    <h3>結算結果</h3>
+                    <div class="amount" id="balance-amount">$0</div>
+                    <div id="balance-text">沒有差額</div>
+                </div>
+
+                <div class="section">
+                    <h2>記錄付款</h2>
+                    <div class="form-group">
+                        <label>付款金額：</label>
+                        <input type="number" id="payment-amount" placeholder="輸入付款金額" min="0" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label>備註：</label>
+                        <input type="text" id="payment-note" placeholder="例如：10月份結算">
+                    </div>
+                    <button class="btn btn-secondary" onclick="recordPayment()">記錄付款</button>
+                </div>
+
+                <div class="section">
+                    <button class="btn btn-danger" onclick="resetAll()">清除所有記錄</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔒 Your Apps Script Configuration
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp_cZnChbItEhHNlMHLaWx_yroPzxqRWBykdoduc__3-CKkynjcDLuEi_eYXkND4Hgjg/exec';
+        const AUTHORIZED_USERS = ['jeffhimcch@gmail.com', 'dorothylaw0603@gmail.com'];
+
+        // Initialize app data
+        let appData = {
+            person1: 'Jeff',
+            person2: 'Dorothy',
+            selectedPerson: 'person1',
+            choreTypes: [
+                {name: '洗碗', amount: 10},
+                {name: '拖地', amount: 15},
+                {name: '洗衫', amount: 20},
+                {name: '煮飯', amount: 25}
+            ],
+            choreLogs: [],
+            payments: []
+        };
+
+        let syncConfig = {
+            isConnected: false,
+            currentUser: null,
+            lastSyncTime: null
+        };
+
+        // Load configurations
+        function loadConfigurations() {
+            const savedData = localStorage.getItem('choreAppData');
+            if (savedData) {
+                appData = {...appData, ...JSON.parse(savedData)};
+            }
+
+            const savedSyncConfig = localStorage.getItem('syncConfig');
+            if (savedSyncConfig) {
+                syncConfig = {...syncConfig, ...JSON.parse(savedSyncConfig)};
+                if (syncConfig.isConnected) {
+                    updateSyncStatus(`已連接 (${syncConfig.currentUser})`, true);
+                }
+            }
+
+            updateUI();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('choreAppData', JSON.stringify(appData));
+        }
+
+        // Save sync config
+        function saveSyncConfig() {
+            localStorage.setItem('syncConfig', JSON.stringify(syncConfig));
+        }
+
+        // Update sync status
+        function updateSyncStatus(message, isConnected = false) {
+            const statusEl = document.getElementById('sync-status');
+            statusEl.innerHTML = isConnected ? 
+                `<span style="color: #4CAF50;">●</span> ${message}` : 
+                `<span style="color: #ff6b6b;">●</span> ${message}`;
+        }
+
+        // Show messages in sync tab
+        function showMessage(message, type = 'info') {
+            const messagesEl = document.getElementById('sync-messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = type === 'error' ? 'error' : 'success';
+            messageEl.textContent = message;
+            messagesEl.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.remove();
+            }, 5000);
+        }
+
+        // Test connection with Google Apps Script
+        async function testConnection() {
+            try {
+                updateSyncStatus('連接中...', false);
+                
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: 'test'})
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    syncConfig.isConnected = true;
+                    syncConfig.currentUser = result.user;
+                    saveSyncConfig();
+                    
+                    showMessage(`連接成功！當前使用者: ${result.user}`, 'success');
+                    updateSyncStatus(`已連接 (${result.user})`, true);
+                    
+                    // Check if user is authorized
+                    if (!AUTHORIZED_USERS.includes(result.user)) {
+                        showMessage('警告：當前使用者未在授權名單中', 'error');
+                    }
+                    
+                    return true;
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                syncConfig.isConnected = false;
+                syncConfig.currentUser = null;
+                saveSyncConfig();
+                
+                showMessage(`連接失敗: ${error.message}`, 'error');
+                updateSyncStatus('連接失敗', false);
+                return false;
+            }
+        }
+
+        // Sync to cloud
+        async function syncToCloud() {
+            if (!syncConfig.isConnected) {
+                showMessage('請先測試連接', 'error');
+                return;
+            }
+
+            const syncBtn = document.getElementById('sync-btn');
+            const syncText = document.getElementById('sync-text');
+            
+            syncBtn.disabled = true;
+            syncText.innerHTML = '<span class="loading"></span> 上傳中...';
+
+            try {
+                // Prepare data for each sheet
+                const sheets = [
+                    {
+                        name: 'ChoreTypes',
+                        data: [['家務名稱', '金額'], ...appData.choreTypes.map(c => [c.name, c.amount])]
+                    },
+                    {
+                        name: 'ChoreLogs',
+                        data: [['日期', '時間', '人員', '家務名稱', '金額'], 
+                               ...appData.choreLogs.map(log => [
+                                   log.date, log.time, 
+                                   log.person === 'person1' ? appData.person1 : appData.person2,
+                                   log.choreName, log.amount
+                               ])]
+                    },
+                    {
+                        name: 'Payments',
+                        data: [['日期', '時間', '付款人', '收款人', '金額', '備註'],
+                               ...appData.payments.map(p => [p.date, p.time, p.payer, p.receiver, p.amount, p.note])]
+                    },
+                    {
+                        name: 'Settings',
+                        data: [['設定名稱', '值'], ['person1', appData.person1], ['person2', appData.person2]]
+                    }
+                ];
+
+                // Upload each sheet
+                for (const sheet of sheets) {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            action: 'write',
+                            sheetName: sheet.name,
+                            values: sheet.data
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (!result.success) {
+                        throw new Error(result.error);
+                    }
+                }
+
+                syncConfig.lastSyncTime = new Date().toLocaleString('zh-HK');
+                saveSyncConfig();
+                
+                showMessage('資料已成功上傳到雲端！', 'success');
+                updateSyncStatus(`已同步 (${syncConfig.currentUser})`, true);
+
+            } catch (error) {
+                showMessage(`上傳失敗: ${error.message}`, 'error');
+                updateSyncStatus('同步失敗', false);
+            } finally {
+                syncBtn.disabled = false;
+                syncText.textContent = '上傳到雲端';
+            }
+        }
+
+        // Sync from cloud
+        async function syncFromCloud() {
+            if (!syncConfig.isConnected) {
+                showMessage('請先測試連接', 'error');
+                return;
+            }
+
+            const downloadBtn = document.getElementById('download-btn');
+            const downloadText = document.getElementById('download-text');
+            
+            downloadBtn.disabled = true;
+            downloadText.innerHTML = '<span class="loading"></span> 下載中...';
+
+            try {
+                const sheets = ['ChoreTypes', 'ChoreLogs', 'Payments', 'Settings'];
+                
+                for (const sheetName of sheets) {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            action: 'read',
+                            sheetName: sheetName
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success && result.data.length > 1) {
+                        processDownloadedData(sheetName, result.data);
+                    }
+                }
+
+                saveData();
+                updateUI();
+                showMessage('資料已成功從雲端下載！', 'success');
+                updateSyncStatus(`已同步 (${syncConfig.currentUser})`, true);
+
+            } catch (error) {
+                showMessage(`下載失敗: ${error.message}`, 'error');
+                updateSyncStatus('同步失敗', false);
+            } finally {
+                downloadBtn.disabled = false;
+                downloadText.textContent = '從雲端下載';
+            }
+        }
+
+        // Process downloaded data
+        function processDownloadedData(sheetName, data) {
+            switch(sheetName) {
+                case 'ChoreTypes':
+                    appData.choreTypes = data.slice(1).map(row => ({
+                        name: row[0],
+                        amount: parseInt(row[1]) || 0
+                    }));
+                    break;
+                case 'ChoreLogs':
+                    appData.choreLogs = data.slice(1).map(row => ({
+                        date: row[0],
+                        time: row[1],
+                        person: row[2] === appData.person1 ? 'person1' : 'person2',
+                        choreName: row[3],
+                        amount: parseInt(row[4]) || 0
+                    }));
+                    break;
+                case 'Payments':
+                    appData.payments = data.slice(1).map(row => ({
+                        date: row[0],
+                        time: row[1],
+                        payer: row[2],
+                        receiver: row[3],
+                        amount: parseInt(row[4]) || 0,
+                        note: row[5] || ''
+                    }));
+                    break;
+                case 'Settings':
+                    data.slice(1).forEach(row => {
+                        if (row[0] === 'person1') appData.person1 = row[1];
+                        if (row[0] === 'person2') appData.person2 = row[1];
+                    });
+                    break;
+            }
+        }
+
+        // Show specific tab
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'balance') {
+                updateBalance();
+            }
+        }
+
+        // Select person for chore logging
+        function selectPerson(person) {
+            appData.selectedPerson = person;
+            document.querySelectorAll('.person-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById(person + '-btn').classList.add('selected');
+        }
+
+        // Update names throughout the app
+        function updateNames() {
+            appData.person1 = document.getElementById('name1').value;
+            appData.person2 = document.getElementById('name2').value;
+            
+            document.getElementById('person1-name').textContent = appData.person1;
+            document.getElementById('person2-name').textContent = appData.person2;
+            document.getElementById('person1-stat').textContent = appData.person1 + '的收入';
+            document.getElementById('person2-stat').textContent = appData.person2 + '的收入';
+            
+            saveData();
+            updateBalance();
+        }
+
+        // Add new chore type
+        function addChoreType() {
+            const name = document.getElementById('chore-name').value.trim();
+            const amount = parseInt(document.getElementById('chore-amount').value);
+
+            if (name && amount > 0) {
+                appData.choreTypes.push({name, amount});
+                document.getElementById('chore-name').value = '';
+                document.getElementById('chore-amount').value = '';
+                updateChoreTypes();
+                updateChoreSelect();
+                saveData();
+                
+                // Auto sync if connected
+                if (syncConfig.isConnected) {
+                    setTimeout(syncToCloud, 1000);
+                }
+            } else {
+                alert('請輸入有效的家務名稱和金額');
+            }
+        }
+
+        // Delete chore type
+        function deleteChoreType(index) {
+            if (confirm('確定要删除這個家務類型嗎？')) {
+                appData.choreTypes.splice(index, 1);
+                updateChoreTypes();
+                updateChoreSelect();
+                saveData();
+                
+                // Auto sync if connected
+                if (syncConfig.isConnected) {
+                    setTimeout(syncToCloud, 1000);
+                }
+            }
+        }
+
+        // Add chore log
+        function addChoreLog() {
+            const choreSelect = document.getElementById('chore-select');
+            const choreIndex = choreSelect.value;
+
+            if (choreIndex === '') {
+                alert('請選擇家務類型');
+                return;
+            }
+
+            const chore = appData.choreTypes[choreIndex];
+            const log = {
+                date: new Date().toLocaleDateString('zh-HK'),
+                time: new Date().toLocaleTimeString('zh-HK', {hour: '2-digit', minute: '2-digit'}),
+                person: appData.selectedPerson,
+                choreName: chore.name,
+                amount: chore.amount
+            };
+
+            appData.choreLogs.unshift(log);
+            updateRecentLogs();
+            saveData();
+            choreSelect.value = '';
+
+            // Auto sync if connected
+            if (syncConfig.isConnected) {
+                setTimeout(syncToCloud, 1000);
+            }
+        }
+
+        // Record payment
+        function recordPayment() {
+            const amount = parseInt(document.getElementById('payment-amount').value);
+            const note = document.getElementById('payment-note').value.trim();
+
+            if (amount > 0) {
+                const balance = calculateBalance();
+                let payer, receiver;
+
+                if (balance.owePerson === 'person1') {
+                    payer = appData.person1;
+                    receiver = appData.person2;
+                } else {
+                    payer = appData.person2;
+                    receiver = appData.person1;
+                }
+
+                const payment = {
+                    date: new Date().toLocaleDateString('zh-HK'),
+                    time: new Date().toLocaleTimeString('zh-HK', {hour: '2-digit', minute: '2-digit'}),
+                    payer,
+                    receiver,
+                    amount,
+                    note: note || '結算付款'
+                };
+
+                appData.payments.push(payment);
+                document.getElementById('payment-amount').value = '';
+                document.getElementById('payment-note').value = '';
+                updateBalance();
+                saveData();
+                alert(`記錄成功！${payer} 付了 $${amount} 給 ${receiver}`);
+
+                // Auto sync if connected
+                if (syncConfig.isConnected) {
+                    setTimeout(syncToCloud, 1000);
+                }
+            } else {
+                alert('請輸入有效的付款金額');
+            }
+        }
+
+        // Calculate balance
+        function calculateBalance() {
+            const person1Total = appData.choreLogs
+                .filter(log => log.person === 'person1')
+                .reduce((sum, log) => sum + log.amount, 0);
+
+            const person2Total = appData.choreLogs
+                .filter(log => log.person === 'person2')
+                .reduce((sum, log) => sum + log.amount, 0);
+
+            const person1Payments = appData.payments
+                .filter(payment => payment.payer === appData.person1)
+                .reduce((sum, payment) => sum + payment.amount, 0);
+
+            const person2Payments = appData.payments
+                .filter(payment => payment.payer === appData.person2)
+                .reduce((sum, payment) => sum + payment.amount, 0);
+
+            const adjustedPerson1 = person1Total - person1Payments + person2Payments;
+            const adjustedPerson2 = person2Total - person2Payments + person1Payments;
+
+            const difference = Math.abs(adjustedPerson1 - adjustedPerson2);
+            const owePerson = adjustedPerson1 < adjustedPerson2 ? 'person1' : 'person2';
+
+            return {
+                person1Total: adjustedPerson1,
+                person2Total: adjustedPerson2,
+                difference,
+                owePerson: difference > 0 ? owePerson : null
+            };
+        }
+
+        // Update balance display
+        function updateBalance() {
+            const balance = calculateBalance();
+
+            document.getElementById('person1-total').textContent = `$${balance.person1Total}`;
+            document.getElementById('person2-total').textContent = `$${balance.person2Total}`;
+
+            const balanceAmountEl = document.getElementById('balance-amount');
+            const balanceTextEl = document.getElementById('balance-text');
+
+            if (balance.difference === 0) {
+                balanceAmountEl.textContent = '$0';
+                balanceTextEl.textContent = '沒有差額';
+            } else {
+                balanceAmountEl.textContent = `$${balance.difference}`;
+                const oweName = balance.owePerson === 'person1' ? appData.person1 : appData.person2;
+                const receiveName = balance.owePerson === 'person1' ? appData.person2 : appData.person1;
+                balanceTextEl.textContent = `${oweName} 要付 ${receiveName}`;
+            }
+        }
+
+        // Update chore types display
+        function updateChoreTypes() {
+            const container = document.getElementById('chore-types');
+            container.innerHTML = '';
+
+            appData.choreTypes.forEach((chore, index) => {
+                const div = document.createElement('div');
+                div.className = 'chore-item';
+                div.innerHTML = `
+                    <span>${chore.name} - $${chore.amount}</span>
+                    <button class="btn btn-danger btn-small" onclick="deleteChoreType(${index})">删除</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Update chore select dropdown
+        function updateChoreSelect() {
+            const select = document.getElementById('chore-select');
+            select.innerHTML = '<option value="">請選擇家務</option>';
+
+            appData.choreTypes.forEach((chore, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${chore.name} ($${chore.amount})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Update recent logs display
+        function updateRecentLogs() {
+            const container = document.getElementById('recent-logs');
+            container.innerHTML = '';
+
+            const recentLogs = appData.choreLogs.slice(0, 5);
+            recentLogs.forEach(log => {
+                const div = document.createElement('div');
+                div.className = 'log-item';
+                const personName = log.person === 'person1' ? appData.person1 : appData.person2;
+                div.innerHTML = `
+                    <div>
+                        <strong>${personName}</strong><br>
+                        <small>${log.date} ${log.time}</small>
+                    </div>
+                    <div>
+                        ${log.choreName}<br>
+                        <strong>+$${log.amount}</strong>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            if (recentLogs.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">還沒有記錄</div>';
+            }
+        }
+
+        // Reset all data
+        function resetAll() {
+            if (confirm('確定要清除所有記錄嗎？此操作無法撤銷！')) {
+                appData.choreLogs = [];
+                appData.payments = [];
+                updateUI();
+                saveData();
+                alert('所有記錄已清除');
+
+                // Auto sync if connected
+                if (syncConfig.isConnected) {
+                    setTimeout(syncToCloud, 1000);
+                }
+            }
+        }
+
+        // Update entire UI
+        function updateUI() {
+            updateNames();
+            updateChoreTypes();
+            updateChoreSelect();
+            updateRecentLogs();
+            updateBalance();
+        }
+
+        // Initialize app when page loads
+        window.addEventListener('load', function() {
+            loadConfigurations();
+        });
+    </script>
+</body>
+</html>
