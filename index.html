@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>家務記錄 App</title>
     
-    <!-- iOS App Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iMzAiIGZpbGw9IiM0Q0FGNTASCZ8L3JlY3Q+CjxwYXRoIGQ9Ik05MCAyMEw5MCA2MEwxMzAgNDBMOTAgMjBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNTAgNDBMOTAgNjBMNTAgODBWNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNOTAgMTIwTDkwIDE2MEwxMzAgMTQwTDkwIDEyMFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01MCAxNDBMOTAgMTYwTDUwIDE4MFYxNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K">
-    
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="./manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="家務記錄">
+    <meta name="theme-color" content="#4CAF50">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='30' fill='%234CAF50'/%3E%3Ctext x='90' y='100' text-anchor='middle' font-size='60' fill='white'%3E🏠%3C/text%3E%3C/svg%3E">
     
     <style>
         * {
@@ -361,6 +362,18 @@
             margin: 10px 0;
             font-size: 14px;
         }
+
+        .debug-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -412,6 +425,12 @@
                     <button class="btn btn-secondary" onclick="syncFromCloud()" id="download-btn">
                         <span id="download-text">從雲端下載</span>
                     </button>
+                </div>
+
+                <div class="section">
+                    <h2>🔧 Debug 信息</h2>
+                    <button class="btn btn-secondary" onclick="showDebugInfo()">顯示詳細信息</button>
+                    <div id="debug-info"></div>
                 </div>
 
                 <div id="sync-messages"></div>
@@ -545,18 +564,45 @@
             lastSyncTime: null
         };
 
+        // Debug function
+        function showDebugInfo() {
+            const debugDiv = document.getElementById('debug-info');
+            const info = {
+                'Apps Script URL': APPS_SCRIPT_URL,
+                'User Agent': navigator.userAgent,
+                'Is PWA': window.matchMedia('(display-mode: standalone)').matches,
+                'Current URL': window.location.href,
+                'Local Storage Available': !!localStorage,
+                'Sync Config': syncConfig,
+                'Last Error': localStorage.getItem('lastError') || 'None'
+            };
+            
+            debugDiv.innerHTML = '<div class="debug-info">' + 
+                Object.entries(info).map(([key, value]) => 
+                    `<strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`
+                ).join('<br>') + '</div>';
+        }
+
         // Load configurations
         function loadConfigurations() {
             const savedData = localStorage.getItem('choreAppData');
             if (savedData) {
-                appData = {...appData, ...JSON.parse(savedData)};
+                try {
+                    appData = {...appData, ...JSON.parse(savedData)};
+                } catch (e) {
+                    console.error('Error loading saved data:', e);
+                }
             }
 
             const savedSyncConfig = localStorage.getItem('syncConfig');
             if (savedSyncConfig) {
-                syncConfig = {...syncConfig, ...JSON.parse(savedSyncConfig)};
-                if (syncConfig.isConnected) {
-                    updateSyncStatus(`已連接 (${syncConfig.currentUser})`, true);
+                try {
+                    syncConfig = {...syncConfig, ...JSON.parse(savedSyncConfig)};
+                    if (syncConfig.isConnected) {
+                        updateSyncStatus(`已連接 (${syncConfig.currentUser})`, true);
+                    }
+                } catch (e) {
+                    console.error('Error loading sync config:', e);
                 }
             }
 
@@ -565,12 +611,21 @@
 
         // Save data to localStorage
         function saveData() {
-            localStorage.setItem('choreAppData', JSON.stringify(appData));
+            try {
+                localStorage.setItem('choreAppData', JSON.stringify(appData));
+            } catch (e) {
+                console.error('Error saving data:', e);
+                showMessage('保存數據失敗', 'error');
+            }
         }
 
         // Save sync config
         function saveSyncConfig() {
-            localStorage.setItem('syncConfig', JSON.stringify(syncConfig));
+            try {
+                localStorage.setItem('syncConfig', JSON.stringify(syncConfig));
+            } catch (e) {
+                console.error('Error saving sync config:', e);
+            }
         }
 
         // Update sync status
@@ -590,20 +645,36 @@
             messagesEl.appendChild(messageEl);
             
             setTimeout(() => {
-                messageEl.remove();
+                if (messageEl.parentNode) {
+                    messageEl.remove();
+                }
             }, 5000);
         }
 
-        // Test connection with Google Apps Script
+        // Enhanced test connection with better error handling
         async function testConnection() {
             try {
                 updateSyncStatus('連接中...', false);
                 
-                const response = await fetch(APPS_SCRIPT_URL, {
+                // Add timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                
+                const response = await fetch(APPS_SCRIPT_URL + '?v=' + Date.now(), {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({action: 'test'})
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({action: 'test'}),
+                    signal: controller.signal,
+                    mode: 'cors'
                 });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
 
                 const result = await response.json();
                 
@@ -622,20 +693,30 @@
                     
                     return true;
                 } else {
-                    throw new Error(result.error);
+                    throw new Error(result.error || 'Unknown error from server');
                 }
             } catch (error) {
                 syncConfig.isConnected = false;
                 syncConfig.currentUser = null;
                 saveSyncConfig();
                 
-                showMessage(`連接失敗: ${error.message}`, 'error');
+                let errorMessage = error.message;
+                if (error.name === 'AbortError') {
+                    errorMessage = '連接超時 - 請檢查網絡連接';
+                } else if (error.message.includes('CORS')) {
+                    errorMessage = 'CORS錯誤 - 請檢查Apps Script設定';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = '網絡錯誤 - 請檢查連接';
+                }
+                
+                localStorage.setItem('lastError', errorMessage);
+                showMessage(`連接失敗: ${errorMessage}`, 'error');
                 updateSyncStatus('連接失敗', false);
                 return false;
             }
         }
 
-        // Sync to cloud
+        // Enhanced sync to cloud with better error handling
         async function syncToCloud() {
             if (!syncConfig.isConnected) {
                 showMessage('請先測試連接', 'error');
@@ -675,8 +756,11 @@
                     }
                 ];
 
-                // Upload each sheet
+                // Upload each sheet with timeout
                 for (const sheet of sheets) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout per sheet
+                    
                     const response = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
@@ -684,12 +768,19 @@
                             action: 'write',
                             sheetName: sheet.name,
                             values: sheet.data
-                        })
+                        }),
+                        signal: controller.signal
                     });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status} when uploading ${sheet.name}`);
+                    }
                     
                     const result = await response.json();
                     if (!result.success) {
-                        throw new Error(result.error);
+                        throw new Error(result.error || `Failed to upload ${sheet.name}`);
                     }
                 }
 
@@ -700,7 +791,13 @@
                 updateSyncStatus(`已同步 (${syncConfig.currentUser})`, true);
 
             } catch (error) {
-                showMessage(`上傳失敗: ${error.message}`, 'error');
+                let errorMessage = error.message;
+                if (error.name === 'AbortError') {
+                    errorMessage = '上傳超時';
+                }
+                
+                localStorage.setItem('lastError', errorMessage);
+                showMessage(`上傳失敗: ${errorMessage}`, 'error');
                 updateSyncStatus('同步失敗', false);
             } finally {
                 syncBtn.disabled = false;
@@ -708,7 +805,7 @@
             }
         }
 
-        // Sync from cloud
+        // Enhanced sync from cloud
         async function syncFromCloud() {
             if (!syncConfig.isConnected) {
                 showMessage('請先測試連接', 'error');
@@ -725,14 +822,24 @@
                 const sheets = ['ChoreTypes', 'ChoreLogs', 'Payments', 'Settings'];
                 
                 for (const sheetName of sheets) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    
                     const response = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
                             action: 'read',
                             sheetName: sheetName
-                        })
+                        }),
+                        signal: controller.signal
                     });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status} when downloading ${sheetName}`);
+                    }
                     
                     const result = await response.json();
                     if (result.success && result.data.length > 1) {
@@ -746,7 +853,13 @@
                 updateSyncStatus(`已同步 (${syncConfig.currentUser})`, true);
 
             } catch (error) {
-                showMessage(`下載失敗: ${error.message}`, 'error');
+                let errorMessage = error.message;
+                if (error.name === 'AbortError') {
+                    errorMessage = '下載超時';
+                }
+                
+                localStorage.setItem('lastError', errorMessage);
+                showMessage(`下載失敗: ${errorMessage}`, 'error');
                 updateSyncStatus('同步失敗', false);
             } finally {
                 downloadBtn.disabled = false;
@@ -756,38 +869,43 @@
 
         // Process downloaded data
         function processDownloadedData(sheetName, data) {
-            switch(sheetName) {
-                case 'ChoreTypes':
-                    appData.choreTypes = data.slice(1).map(row => ({
-                        name: row[0],
-                        amount: parseInt(row[1]) || 0
-                    }));
-                    break;
-                case 'ChoreLogs':
-                    appData.choreLogs = data.slice(1).map(row => ({
-                        date: row[0],
-                        time: row[1],
-                        person: row[2] === appData.person1 ? 'person1' : 'person2',
-                        choreName: row[3],
-                        amount: parseInt(row[4]) || 0
-                    }));
-                    break;
-                case 'Payments':
-                    appData.payments = data.slice(1).map(row => ({
-                        date: row[0],
-                        time: row[1],
-                        payer: row[2],
-                        receiver: row[3],
-                        amount: parseInt(row[4]) || 0,
-                        note: row[5] || ''
-                    }));
-                    break;
-                case 'Settings':
-                    data.slice(1).forEach(row => {
-                        if (row[0] === 'person1') appData.person1 = row[1];
-                        if (row[0] === 'person2') appData.person2 = row[1];
-                    });
-                    break;
+            try {
+                switch(sheetName) {
+                    case 'ChoreTypes':
+                        appData.choreTypes = data.slice(1).map(row => ({
+                            name: row[0] || '',
+                            amount: parseInt(row[1]) || 0
+                        })).filter(item => item.name);
+                        break;
+                    case 'ChoreLogs':
+                        appData.choreLogs = data.slice(1).map(row => ({
+                            date: row[0] || '',
+                            time: row[1] || '',
+                            person: row[2] === appData.person1 ? 'person1' : 'person2',
+                            choreName: row[3] || '',
+                            amount: parseInt(row[4]) || 0
+                        })).filter(item => item.date && item.choreName);
+                        break;
+                    case 'Payments':
+                        appData.payments = data.slice(1).map(row => ({
+                            date: row[0] || '',
+                            time: row[1] || '',
+                            payer: row[2] || '',
+                            receiver: row[3] || '',
+                            amount: parseInt(row[4]) || 0,
+                            note: row[5] || ''
+                        })).filter(item => item.date && item.payer);
+                        break;
+                    case 'Settings':
+                        data.slice(1).forEach(row => {
+                            if (row[0] === 'person1' && row[1]) appData.person1 = row[1];
+                            if (row[0] === 'person2' && row[1]) appData.person2 = row[1];
+                        });
+                        break;
+                }
+            } catch (error) {
+                console.error(`Error processing ${sheetName}:`, error);
+                showMessage(`處理 ${sheetName} 數據時出錯`, 'error');
             }
         }
 
@@ -1073,6 +1191,17 @@
             updateChoreSelect();
             updateRecentLogs();
             updateBalance();
+        }
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
         }
 
         // Initialize app when page loads
