@@ -124,11 +124,6 @@
             transition: border-color 0.3s;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #4CAF50;
@@ -287,47 +282,52 @@
             color: #4CAF50;
         }
 
-        .setup-section {
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196F3;
-        }
-
-        .setup-section h3 {
-            color: #1565c0;
-            margin-bottom: 10px;
-        }
-
-        .setup-section p {
-            color: #1976d2;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-
-        .authorized-users {
-            background: #f1f8e9;
+        .security-notice {
+            background: #e8f5e8;
             padding: 15px;
             border-radius: 8px;
-            margin: 15px 0;
+            margin-bottom: 20px;
             border-left: 4px solid #4CAF50;
         }
 
-        .authorized-users h4 {
+        .security-notice h3 {
             color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .security-notice p {
+            color: #388e3c;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .authorized-users {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .authorized-users h4 {
+            color: #7b1fa2;
             margin-bottom: 8px;
             font-size: 14px;
         }
 
-        .authorized-users .user {
+        .user {
             background: white;
             padding: 8px 12px;
             border-radius: 6px;
             margin: 5px 0;
             font-size: 13px;
-            color: #388e3c;
-            border: 1px solid #c8e6c9;
+            color: #4a148c;
+            border: 1px solid #ce93d8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .loading {
@@ -346,33 +346,88 @@
         }
 
         .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 10px;
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
             border-radius: 8px;
             margin: 10px 0;
             font-size: 14px;
+            border-left: 4px solid #f44336;
         }
 
         .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 10px;
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 12px;
             border-radius: 8px;
             margin: 10px 0;
             font-size: 14px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .warning {
+            background: #fff8e1;
+            color: #f57c00;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            border-left: 4px solid #ff9800;
         }
 
         .debug-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 10px;
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            padding: 12px;
             border-radius: 8px;
             margin: 10px 0;
             font-size: 12px;
             font-family: monospace;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected { background: #4CAF50; }
+        .status-disconnected { background: #f44336; }
+        .status-connecting { background: #ff9800; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .url-info {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196F3;
+        }
+
+        .url-info h4 {
+            color: #1565c0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .url-display {
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            word-break: break-all;
+            font-family: monospace;
+            color: #333;
+            border: 1px solid #bbdefb;
+            font-size: 11px;
         }
     </style>
 </head>
@@ -381,8 +436,9 @@
         <div class="header">
             <div class="logo">🏠</div>
             <h1>家務記錄 App</h1>
-            <div class="subtitle">記錄家務，計算差額</div>
+            <div class="subtitle">安全雲端同步版本</div>
             <div class="sync-status" id="sync-status">
+                <span class="status-indicator status-disconnected"></span>
                 <span>離線模式</span>
             </div>
         </div>
@@ -398,38 +454,56 @@
 
             <!-- Sync Tab -->
             <div id="sync" class="tab-content">
-                <div class="setup-section">
-                    <h3>🔒 安全雲端同步</h3>
-                    <p>使用 Google Apps Script 進行安全的雲端同步，只有授權使用者可以存取資料。</p>
+                <div class="security-notice">
+                    <h3>🔒 安全保護</h3>
+                    <p>✅ 只有指定的 Google 帳戶可以存取</p>
+                    <p>✅ 所有操作都會被記錄</p>
+                    <p>✅ 資料加密傳輸和存儲</p>
+                </div>
+
+                <div class="url-info">
+                    <h4>🔗 連接端點</h4>
+                    <div class="url-display">
+                        https://script.google.com/macros/s/AKfycbzRFxWDCw8lYdQc81F3yNmAzzZ5PpIi9i1lkQ6D5Ag_-rzJpP9EMi6MR1ddMZofCeqe_g/exec
+                    </div>
                 </div>
 
                 <div class="authorized-users">
-                    <h4>🔐 授權使用者</h4>
-                    <div class="user">📧 jeffhimcch@gmail.com</div>
-                    <div class="user">📧 dorothylaw0603@gmail.com</div>
+                    <h4>👥 授權使用者（僅限以下帳戶）</h4>
+                    <div class="user">
+                        <span>🔐</span>
+                        <span>jeffhimcch@gmail.com</span>
+                    </div>
+                    <div class="user">
+                        <span>🔐</span>
+                        <span>dorothylaw0603@gmail.com</span>
+                    </div>
                 </div>
 
                 <div class="section">
-                    <h2>連接狀態</h2>
-                    <button class="btn btn-secondary" onclick="testConnection()">測試連接</button>
+                    <h2>🔗 連接狀態</h2>
+                    <button class="btn btn-secondary" onclick="testConnection()" id="test-btn">
+                        <span id="test-text">測試安全連接</span>
+                    </button>
                     <small style="color: #666; font-size: 12px; display: block; margin-top: 10px;">
-                        點擊測試連接會要求 Google 帳戶登入驗證
+                        ⚠️ 需要使用授權的 Google 帳戶登入
                     </small>
                 </div>
 
                 <div class="section">
-                    <h2>同步操作</h2>
+                    <h2>☁️ 雲端同步</h2>
                     <button class="btn" onclick="syncToCloud()" id="sync-btn">
                         <span id="sync-text">上傳到雲端</span>
                     </button>
                     <button class="btn btn-secondary" onclick="syncFromCloud()" id="download-btn">
                         <span id="download-text">從雲端下載</span>
                     </button>
+                    <div id="last-sync" style="font-size: 12px; color: #666; margin-top: 10px;"></div>
                 </div>
 
                 <div class="section">
-                    <h2>🔧 Debug 信息</h2>
-                    <button class="btn btn-secondary" onclick="showDebugInfo()">顯示詳細信息</button>
+                    <h2>🔧 診斷工具</h2>
+                    <button class="btn btn-secondary" onclick="showDebugInfo()">顯示診斷信息</button>
                     <div id="debug-info"></div>
                 </div>
 
@@ -439,7 +513,7 @@
             <!-- Record Chores Tab -->
             <div id="record" class="tab-content active">
                 <div class="section">
-                    <h2>記錄完成的家務</h2>
+                    <h2>📝 記錄完成的家務</h2>
                     
                     <div class="person-select">
                         <button class="person-btn selected" id="person1-btn" onclick="selectPerson('person1')">
@@ -461,7 +535,7 @@
                 </div>
 
                 <div class="section">
-                    <h2>最近記錄</h2>
+                    <h2>📋 最近記錄</h2>
                     <div id="recent-logs"></div>
                 </div>
             </div>
@@ -469,7 +543,7 @@
             <!-- Manage Chores Tab -->
             <div id="manage" class="tab-content">
                 <div class="section">
-                    <h2>設定人員名稱</h2>
+                    <h2>👥 設定人員名稱</h2>
                     <div class="form-group">
                         <label>第一位：</label>
                         <input type="text" id="name1" value="Jeff" onchange="updateNames()">
@@ -481,7 +555,7 @@
                 </div>
 
                 <div class="section">
-                    <h2>新增家務類型</h2>
+                    <h2>➕ 新增家務類型</h2>
                     <div class="form-group">
                         <label>家務名稱：</label>
                         <input type="text" id="chore-name" placeholder="例如：洗碗">
@@ -494,7 +568,7 @@
                 </div>
 
                 <div class="section">
-                    <h2>現有家務類型</h2>
+                    <h2>📝 現有家務類型</h2>
                     <div id="chore-types"></div>
                 </div>
             </div>
@@ -513,13 +587,13 @@
                 </div>
 
                 <div class="balance">
-                    <h3>結算結果</h3>
+                    <h3>💰 結算結果</h3>
                     <div class="amount" id="balance-amount">$0</div>
                     <div id="balance-text">沒有差額</div>
                 </div>
 
                 <div class="section">
-                    <h2>記錄付款</h2>
+                    <h2>💸 記錄付款</h2>
                     <div class="form-group">
                         <label>付款金額：</label>
                         <input type="number" id="payment-amount" placeholder="輸入付款金額" min="0" step="1">
@@ -532,18 +606,18 @@
                 </div>
 
                 <div class="section">
-                    <button class="btn btn-danger" onclick="resetAll()">清除所有記錄</button>
+                    <button class="btn btn-danger" onclick="resetAll()">⚠️ 清除所有記錄</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 🔒 Your Apps Script Configuration
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp_cZnChbItEhHNlMHLaWx_yroPzxqRWBykdoduc__3-CKkynjcDLuEi_eYXkND4Hgjg/exec';
+        // 🔒 SECURE CONFIGURATION - Updated with your URL
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRFxWDCw8lYdQc81F3yNmAzzZ5PpIi9i1lkQ6D5Ag_-rzJpP9EMi6MR1ddMZofCeqe_g/exec';
         const AUTHORIZED_USERS = ['jeffhimcch@gmail.com', 'dorothylaw0603@gmail.com'];
 
-        // Initialize app data
+        // App data structure
         let appData = {
             person1: 'Jeff',
             person2: 'Dorothy',
@@ -558,63 +632,51 @@
             payments: []
         };
 
+        // Sync configuration
         let syncConfig = {
             isConnected: false,
             currentUser: null,
-            lastSyncTime: null
+            lastSyncTime: null,
+            lastError: null
         };
 
-        // Debug function
-        function showDebugInfo() {
-            const debugDiv = document.getElementById('debug-info');
-            const info = {
-                'Apps Script URL': APPS_SCRIPT_URL,
-                'User Agent': navigator.userAgent,
-                'Is PWA': window.matchMedia('(display-mode: standalone)').matches,
-                'Current URL': window.location.href,
-                'Local Storage Available': !!localStorage,
-                'Sync Config': syncConfig,
-                'Last Error': localStorage.getItem('lastError') || 'None'
-            };
-            
-            debugDiv.innerHTML = '<div class="debug-info">' + 
-                Object.entries(info).map(([key, value]) => 
-                    `<strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`
-                ).join('<br>') + '</div>';
+        // Initialize app
+        function initializeApp() {
+            loadLocalData();
+            updateUI();
+            updateLastSyncDisplay();
         }
 
-        // Load configurations
-        function loadConfigurations() {
-            const savedData = localStorage.getItem('choreAppData');
-            if (savedData) {
-                try {
-                    appData = {...appData, ...JSON.parse(savedData)};
-                } catch (e) {
-                    console.error('Error loading saved data:', e);
+        // Load data from localStorage
+        function loadLocalData() {
+            try {
+                const savedData = localStorage.getItem('choreAppData');
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    appData = {...appData, ...parsed};
                 }
-            }
 
-            const savedSyncConfig = localStorage.getItem('syncConfig');
-            if (savedSyncConfig) {
-                try {
-                    syncConfig = {...syncConfig, ...JSON.parse(savedSyncConfig)};
-                    if (syncConfig.isConnected) {
+                const savedSyncConfig = localStorage.getItem('syncConfig');
+                if (savedSyncConfig) {
+                    const parsed = JSON.parse(savedSyncConfig);
+                    syncConfig = {...syncConfig, ...parsed};
+                    
+                    if (syncConfig.isConnected && syncConfig.currentUser) {
                         updateSyncStatus(`已連接 (${syncConfig.currentUser})`, true);
                     }
-                } catch (e) {
-                    console.error('Error loading sync config:', e);
                 }
+            } catch (error) {
+                console.error('Error loading local data:', error);
+                showMessage('載入本地數據時出錯', 'error');
             }
-
-            updateUI();
         }
 
         // Save data to localStorage
         function saveData() {
             try {
                 localStorage.setItem('choreAppData', JSON.stringify(appData));
-            } catch (e) {
-                console.error('Error saving data:', e);
+            } catch (error) {
+                console.error('Error saving data:', error);
                 showMessage('保存數據失敗', 'error');
             }
         }
@@ -623,51 +685,63 @@
         function saveSyncConfig() {
             try {
                 localStorage.setItem('syncConfig', JSON.stringify(syncConfig));
-            } catch (e) {
-                console.error('Error saving sync config:', e);
+            } catch (error) {
+                console.error('Error saving sync config:', error);
             }
         }
 
-        // Update sync status
-        function updateSyncStatus(message, isConnected = false) {
+        // Update sync status display
+        function updateSyncStatus(message, isConnected = false, isConnecting = false) {
             const statusEl = document.getElementById('sync-status');
-            statusEl.innerHTML = isConnected ? 
-                `<span style="color: #4CAF50;">●</span> ${message}` : 
-                `<span style="color: #ff6b6b;">●</span> ${message}`;
+            let statusClass = 'status-disconnected';
+            
+            if (isConnecting) {
+                statusClass = 'status-connecting';
+            } else if (isConnected) {
+                statusClass = 'status-connected';
+            }
+            
+            statusEl.innerHTML = `<span class="status-indicator ${statusClass}"></span><span>${message}</span>`;
         }
 
         // Show messages in sync tab
         function showMessage(message, type = 'info') {
             const messagesEl = document.getElementById('sync-messages');
             const messageEl = document.createElement('div');
-            messageEl.className = type === 'error' ? 'error' : 'success';
-            messageEl.textContent = message;
-            messagesEl.appendChild(messageEl);
+            messageEl.className = type === 'error' ? 'error' : 
+                                 type === 'warning' ? 'warning' : 'success';
+            messageEl.innerHTML = `<strong>${new Date().toLocaleTimeString('zh-HK')}:</strong> ${message}`;
+            messagesEl.insertBefore(messageEl, messagesEl.firstChild);
             
-            setTimeout(() => {
-                if (messageEl.parentNode) {
-                    messageEl.remove();
-                }
-            }, 5000);
+            // Keep only last 5 messages
+            while (messagesEl.children.length > 5) {
+                messagesEl.removeChild(messagesEl.lastChild);
+            }
         }
 
-        // Enhanced test connection with better error handling
+        // Test secure connection
         async function testConnection() {
+            const testBtn = document.getElementById('test-btn');
+            const testText = document.getElementById('test-text');
+            
+            testBtn.disabled = true;
+            testText.innerHTML = '<span class="loading"></span> 連接中...';
+            updateSyncStatus('正在驗證身份...', false, true);
+
             try {
-                updateSyncStatus('連接中...', false);
-                
-                // Add timeout to prevent hanging
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 20000);
                 
-                const response = await fetch(APPS_SCRIPT_URL + '?v=' + Date.now(), {
+                const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({action: 'test'}),
+                    body: JSON.stringify({
+                        action: 'test'
+                    }),
                     signal: controller.signal,
-                    mode: 'cors'
+                    credentials: 'include'
                 });
 
                 clearTimeout(timeoutId);
@@ -681,45 +755,48 @@
                 if (result.success) {
                     syncConfig.isConnected = true;
                     syncConfig.currentUser = result.user;
+                    syncConfig.lastError = null;
                     saveSyncConfig();
                     
-                    showMessage(`連接成功！當前使用者: ${result.user}`, 'success');
-                    updateSyncStatus(`已連接 (${result.user})`, true);
+                    showMessage(`🎉 連接成功！已驗證使用者: ${result.user}`, 'success');
+                    updateSyncStatus(`🔒 安全連接 (${result.user})`, true);
                     
-                    // Check if user is authorized
                     if (!AUTHORIZED_USERS.includes(result.user)) {
-                        showMessage('警告：當前使用者未在授權名單中', 'error');
+                        showMessage('⚠️ 警告：當前使用者不在授權名單中', 'warning');
                     }
                     
                     return true;
                 } else {
-                    throw new Error(result.error || 'Unknown error from server');
+                    throw new Error(result.error || 'Unknown server error');
                 }
             } catch (error) {
                 syncConfig.isConnected = false;
                 syncConfig.currentUser = null;
+                syncConfig.lastError = error.message;
                 saveSyncConfig();
                 
                 let errorMessage = error.message;
                 if (error.name === 'AbortError') {
                     errorMessage = '連接超時 - 請檢查網絡連接';
-                } else if (error.message.includes('CORS')) {
-                    errorMessage = 'CORS錯誤 - 請檢查Apps Script設定';
+                } else if (error.message.includes('UNAUTHORIZED')) {
+                    errorMessage = '🚫 權限被拒：請使用授權的 Google 帳戶登入';
                 } else if (error.message.includes('Failed to fetch')) {
-                    errorMessage = '網絡錯誤 - 請檢查連接';
+                    errorMessage = '網絡錯誤 - 請檢查連接或稍後再試';
                 }
                 
-                localStorage.setItem('lastError', errorMessage);
-                showMessage(`連接失敗: ${errorMessage}`, 'error');
+                showMessage(`❌ 連接失敗: ${errorMessage}`, 'error');
                 updateSyncStatus('連接失敗', false);
                 return false;
+            } finally {
+                testBtn.disabled = false;
+                testText.textContent = '測試安全連接';
             }
         }
 
-        // Enhanced sync to cloud with better error handling
+        // Sync to cloud
         async function syncToCloud() {
             if (!syncConfig.isConnected) {
-                showMessage('請先測試連接', 'error');
+                showMessage('⚠️ 請先測試連接並登入', 'warning');
                 return;
             }
 
@@ -728,16 +805,16 @@
             
             syncBtn.disabled = true;
             syncText.innerHTML = '<span class="loading"></span> 上傳中...';
+            updateSyncStatus('正在同步到雲端...', true, true);
 
             try {
-                // Prepare data for each sheet
                 const sheets = [
                     {
                         name: 'ChoreTypes',
                         data: [['家務名稱', '金額'], ...appData.choreTypes.map(c => [c.name, c.amount])]
                     },
                     {
-                        name: 'ChoreLogs',
+                        name: 'ChoreLogs', 
                         data: [['日期', '時間', '人員', '家務名稱', '金額'], 
                                ...appData.choreLogs.map(log => [
                                    log.date, log.time, 
@@ -756,10 +833,9 @@
                     }
                 ];
 
-                // Upload each sheet with timeout
                 for (const sheet of sheets) {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout per sheet
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
                     
                     const response = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
@@ -769,26 +845,29 @@
                             sheetName: sheet.name,
                             values: sheet.data
                         }),
-                        signal: controller.signal
+                        signal: controller.signal,
+                        credentials: 'include'
                     });
                     
                     clearTimeout(timeoutId);
                     
                     if (!response.ok) {
-                        throw new Error(`HTTP ${response.status} when uploading ${sheet.name}`);
+                        throw new Error(`HTTP ${response.status} 上傳 ${sheet.name} 時出錯`);
                     }
                     
                     const result = await response.json();
                     if (!result.success) {
-                        throw new Error(result.error || `Failed to upload ${sheet.name}`);
+                        throw new Error(result.error || `上傳 ${sheet.name} 失敗`);
                     }
                 }
 
                 syncConfig.lastSyncTime = new Date().toLocaleString('zh-HK');
+                syncConfig.lastError = null;
                 saveSyncConfig();
                 
-                showMessage('資料已成功上傳到雲端！', 'success');
-                updateSyncStatus(`已同步 (${syncConfig.currentUser})`, true);
+                showMessage('✅ 資料已成功上傳到雲端！', 'success');
+                updateSyncStatus(`🔒 已同步 (${syncConfig.currentUser})`, true);
+                updateLastSyncDisplay();
 
             } catch (error) {
                 let errorMessage = error.message;
@@ -796,8 +875,9 @@
                     errorMessage = '上傳超時';
                 }
                 
-                localStorage.setItem('lastError', errorMessage);
-                showMessage(`上傳失敗: ${errorMessage}`, 'error');
+                syncConfig.lastError = errorMessage;
+                saveSyncConfig();
+                showMessage(`❌ 上傳失敗: ${errorMessage}`, 'error');
                 updateSyncStatus('同步失敗', false);
             } finally {
                 syncBtn.disabled = false;
@@ -805,10 +885,10 @@
             }
         }
 
-        // Enhanced sync from cloud
+        // Sync from cloud
         async function syncFromCloud() {
             if (!syncConfig.isConnected) {
-                showMessage('請先測試連接', 'error');
+                showMessage('⚠️ 請先測試連接並登入', 'warning');
                 return;
             }
 
@@ -817,13 +897,14 @@
             
             downloadBtn.disabled = true;
             downloadText.innerHTML = '<span class="loading"></span> 下載中...';
+            updateSyncStatus('正在從雲端下載...', true, true);
 
             try {
                 const sheets = ['ChoreTypes', 'ChoreLogs', 'Payments', 'Settings'];
                 
                 for (const sheetName of sheets) {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
                     
                     const response = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
@@ -832,25 +913,31 @@
                             action: 'read',
                             sheetName: sheetName
                         }),
-                        signal: controller.signal
+                        signal: controller.signal,
+                        credentials: 'include'
                     });
                     
                     clearTimeout(timeoutId);
                     
                     if (!response.ok) {
-                        throw new Error(`HTTP ${response.status} when downloading ${sheetName}`);
+                        throw new Error(`HTTP ${response.status} 下載 ${sheetName} 時出錯`);
                     }
                     
                     const result = await response.json();
-                    if (result.success && result.data.length > 1) {
+                    if (result.success && result.data && result.data.length > 1) {
                         processDownloadedData(sheetName, result.data);
                     }
                 }
 
+                syncConfig.lastSyncTime = new Date().toLocaleString('zh-HK');
+                syncConfig.lastError = null;
+                saveSyncConfig();
+                
                 saveData();
                 updateUI();
-                showMessage('資料已成功從雲端下載！', 'success');
-                updateSyncStatus(`已同步 (${syncConfig.currentUser})`, true);
+                showMessage('✅ 資料已成功從雲端下載！', 'success');
+                updateSyncStatus(`🔒 已同步 (${syncConfig.currentUser})`, true);
+                updateLastSyncDisplay();
 
             } catch (error) {
                 let errorMessage = error.message;
@@ -858,8 +945,9 @@
                     errorMessage = '下載超時';
                 }
                 
-                localStorage.setItem('lastError', errorMessage);
-                showMessage(`下載失敗: ${errorMessage}`, 'error');
+                syncConfig.lastError = errorMessage;
+                saveSyncConfig();
+                showMessage(`❌ 下載失敗: ${errorMessage}`, 'error');
                 updateSyncStatus('同步失敗', false);
             } finally {
                 downloadBtn.disabled = false;
@@ -909,6 +997,51 @@
             }
         }
 
+        // Show debug information
+        function showDebugInfo() {
+            const debugDiv = document.getElementById('debug-info');
+            const info = {
+                'Apps Script URL': APPS_SCRIPT_URL,
+                'Connection Status': syncConfig.isConnected ? '已連接' : '未連接',
+                'Current User': syncConfig.currentUser || '無',
+                'Last Sync': syncConfig.lastSyncTime || '從未同步',
+                'Last Error': syncConfig.lastError || '無',
+                'User Agent': navigator.userAgent,
+                'Is PWA': window.matchMedia('(display-mode: standalone)').matches ? '是' : '否',
+                'Current URL': window.location.href,
+                'Local Storage': localStorage ? '可用' : '不可用',
+                'Data Records': {
+                    'Chore Types': appData.choreTypes.length,
+                    'Chore Logs': appData.choreLogs.length,
+                    'Payments': appData.payments.length
+                }
+            };
+            
+            debugDiv.innerHTML = '<div class="debug-info">' + 
+                Object.entries(info).map(([key, value]) => 
+                    `<strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`
+                ).join('<br>') + '</div>';
+        }
+
+        // Update last sync display
+        function updateLastSyncDisplay() {
+            const lastSyncEl = document.getElementById('last-sync');
+            if (syncConfig.lastSyncTime) {
+                lastSyncEl.innerHTML = `🕐 最後同步時間: ${syncConfig.lastSyncTime}`;
+            } else {
+                lastSyncEl.innerHTML = '🕐 尚未同步';
+            }
+        }
+
+        // Auto-sync helper
+        function autoSync() {
+            if (syncConfig.isConnected) {
+                setTimeout(() => {
+                    syncToCloud();
+                }, 1500);
+            }
+        }
+
         // Show specific tab
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -947,6 +1080,7 @@
             
             saveData();
             updateBalance();
+            autoSync();
         }
 
         // Add new chore type
@@ -961,28 +1095,22 @@
                 updateChoreTypes();
                 updateChoreSelect();
                 saveData();
-                
-                // Auto sync if connected
-                if (syncConfig.isConnected) {
-                    setTimeout(syncToCloud, 1000);
-                }
+                autoSync();
+                showMessage(`➕ 新增家務: ${name} ($${amount})`, 'success');
             } else {
-                alert('請輸入有效的家務名稱和金額');
+                showMessage('⚠️ 請輸入有效的家務名稱和金額', 'warning');
             }
         }
 
         // Delete chore type
         function deleteChoreType(index) {
             if (confirm('確定要删除這個家務類型嗎？')) {
-                appData.choreTypes.splice(index, 1);
+                const deleted = appData.choreTypes.splice(index, 1)[0];
                 updateChoreTypes();
                 updateChoreSelect();
                 saveData();
-                
-                // Auto sync if connected
-                if (syncConfig.isConnected) {
-                    setTimeout(syncToCloud, 1000);
-                }
+                autoSync();
+                showMessage(`🗑️ 删除家務: ${deleted.name}`, 'success');
             }
         }
 
@@ -992,7 +1120,7 @@
             const choreIndex = choreSelect.value;
 
             if (choreIndex === '') {
-                alert('請選擇家務類型');
+                showMessage('⚠️ 請選擇家務類型', 'warning');
                 return;
             }
 
@@ -1009,11 +1137,10 @@
             updateRecentLogs();
             saveData();
             choreSelect.value = '';
+            autoSync();
 
-            // Auto sync if connected
-            if (syncConfig.isConnected) {
-                setTimeout(syncToCloud, 1000);
-            }
+            const personName = appData.selectedPerson === 'person1' ? appData.person1 : appData.person2;
+            showMessage(`✅ ${personName} 完成了 ${chore.name} (+$${chore.amount})`, 'success');
         }
 
         // Record payment
@@ -1047,14 +1174,10 @@
                 document.getElementById('payment-note').value = '';
                 updateBalance();
                 saveData();
-                alert(`記錄成功！${payer} 付了 $${amount} 給 ${receiver}`);
-
-                // Auto sync if connected
-                if (syncConfig.isConnected) {
-                    setTimeout(syncToCloud, 1000);
-                }
+                autoSync();
+                showMessage(`💸 記錄付款: ${payer} 付了 $${amount} 給 ${receiver}`, 'success');
             } else {
-                alert('請輸入有效的付款金額');
+                showMessage('⚠️ 請輸入有效的付款金額', 'warning');
             }
         }
 
@@ -1157,7 +1280,7 @@
                     </div>
                     <div>
                         ${log.choreName}<br>
-                        <strong>+$${log.amount}</strong>
+                        <strong style="color: #4CAF50;">+$${log.amount}</strong>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1170,17 +1293,13 @@
 
         // Reset all data
         function resetAll() {
-            if (confirm('確定要清除所有記錄嗎？此操作無法撤銷！')) {
+            if (confirm('⚠️ 確定要清除所有記錄嗎？此操作無法撤銷！')) {
                 appData.choreLogs = [];
                 appData.payments = [];
                 updateUI();
                 saveData();
-                alert('所有記錄已清除');
-
-                // Auto sync if connected
-                if (syncConfig.isConnected) {
-                    setTimeout(syncToCloud, 1000);
-                }
+                autoSync();
+                showMessage('🗑️ 所有記錄已清除', 'success');
             }
         }
 
@@ -1205,9 +1324,7 @@
         }
 
         // Initialize app when page loads
-        window.addEventListener('load', function() {
-            loadConfigurations();
-        });
+        window.addEventListener('load', initializeApp);
     </script>
 </body>
 </html>
