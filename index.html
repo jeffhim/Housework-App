@@ -6,14 +6,11 @@
     <title>家務記錄 App</title>
     
     <!-- PWA Configuration -->
-    <link rel="manifest" href="./manifest.json">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="家務記錄">
-    <meta name="theme-color" content="#4CAF50">
-    
-    <!-- iOS Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='30' fill='%234CAF50'/%3E%3Ctext x='90' y='100' text-anchor='middle' font-size='60' fill='white'%3E🏠%3C/text%3E%3C/svg%3E">
     
     <style>
         * {
@@ -23,10 +20,10 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
@@ -34,1297 +31,609 @@
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
             padding: 30px 20px;
             text-align: center;
+            position: relative;
         }
 
-        .logo {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 15px;
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .balance-card {
             background: rgba(255,255,255,0.2);
             border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
+            padding: 20px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
         }
 
-        h1 {
-            font-size: 24px;
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
             margin-bottom: 5px;
         }
 
-        .subtitle {
+        .balance-label {
             opacity: 0.9;
             font-size: 14px;
         }
 
-        .sync-status {
-            margin-top: 10px;
-            padding: 5px 10px;
-            border-radius: 15px;
-            background: rgba(255,255,255,0.2);
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .content {
+        .main-content {
             padding: 30px 20px;
         }
 
-        .section {
+        .input-section {
             margin-bottom: 30px;
         }
 
-        .section h2 {
-            color: #333;
-            font-size: 18px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .section h2::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: #4CAF50;
-            margin-right: 10px;
-            border-radius: 2px;
-        }
-
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        label {
+        .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
         }
 
-        input, select, textarea {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e1e1e1;
-            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
         }
 
-        input:focus, select:focus, textarea:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
             width: 100%;
-            margin-bottom: 10px;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
 
-        .btn:hover {
-            background: #45a049;
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
         }
 
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
         }
 
         .btn-secondary {
-            background: #2196F3;
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e1e5e9;
         }
 
         .btn-secondary:hover {
-            background: #1976D2;
+            background: #e9ecef;
         }
 
-        .btn-danger {
-            background: #f44336;
+        .transactions-section {
+            margin-top: 30px;
         }
 
-        .btn-danger:hover {
-            background: #d32f2f;
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .btn-small {
-            width: auto;
-            padding: 5px 10px;
-            margin: 0;
-            font-size: 14px;
-        }
-
-        .chore-item, .log-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+        .transaction-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4CAF50;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .balance {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(45deg, #FF6B6B, #ee5a52);
-            color: white;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .balance h3 {
-            margin-bottom: 10px;
-        }
-
-        .balance .amount {
-            font-size: 32px;
-            font-weight: bold;
-        }
-
-        .tabs {
-            display: flex;
-            background: #f0f0f0;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .tab.active {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .person-select {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .person-btn {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .person-btn.selected {
-            border-color: #4CAF50;
-            background: #4CAF50;
-            color: white;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-card h4 {
-            color: #666;
-            font-size: 14px;
+        .transaction-info h4 {
             margin-bottom: 5px;
+            color: #333;
         }
 
-        .stat-card .value {
-            font-size: 24px;
+        .transaction-info p {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 2px 0;
+        }
+
+        .transaction-amount {
+            font-size: 18px;
             font-weight: bold;
             color: #4CAF50;
         }
 
-        .security-notice {
-            background: #e8f5e8;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4CAF50;
+        .expense {
+            border-left-color: #dc3545;
         }
 
-        .security-notice h3 {
-            color: #2e7d32;
-            margin-bottom: 10px;
-            font-size: 16px;
+        .expense .transaction-amount {
+            color: #dc3545;
         }
 
-        .security-notice p {
-            color: #388e3c;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            font-size: 14px;
-        }
-
-        .authorized-users {
-            background: #f3e5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #9c27b0;
-        }
-
-        .authorized-users h4 {
-            color: #7b1fa2;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .user {
-            background: white;
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
             padding: 8px 12px;
             border-radius: 6px;
-            margin: 5px 0;
-            font-size: 13px;
-            color: #4a148c;
-            border: 1px solid #ce93d8;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: #ffebee;
-            color: #c62828;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 14px;
-            border-left: 4px solid #f44336;
-        }
-
-        .success {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 14px;
-            border-left: 4px solid #4CAF50;
-        }
-
-        .warning {
-            background: #fff8e1;
-            color: #f57c00;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 14px;
-            border-left: 4px solid #ff9800;
-        }
-
-        .debug-info {
-            background: #fff3e0;
-            border: 1px solid #ffb74d;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
+            cursor: pointer;
             font-size: 12px;
-            font-family: monospace;
-            max-height: 250px;
-            overflow-y: auto;
-            line-height: 1.4;
+            margin-left: 10px;
+            transition: all 0.3s ease;
         }
 
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 8px;
+        .delete-btn:hover {
+            background: #c82333;
         }
 
-        .status-connected { background: #4CAF50; }
-        .status-disconnected { background: #f44336; }
-        .status-connecting { background: #ff9800; animation: pulse 1.5s infinite; }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
         }
 
-        .url-info {
-            background: #e3f2fd;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #2196F3;
+        .empty-state img {
+            width: 80px;
+            height: 80px;
+            opacity: 0.5;
+            margin-bottom: 15px;
         }
 
-        .url-info h4 {
-            color: #1565c0;
-            margin-bottom: 8px;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-amount {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
             font-size: 14px;
+            color: #6c757d;
         }
 
-        .url-display {
+        .income .stat-amount {
+            color: #28a745;
+        }
+
+        .expense-stat .stat-amount {
+            color: #dc3545;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
             background: white;
-            padding: 8px;
-            border-radius: 4px;
-            word-break: break-all;
-            font-family: monospace;
-            color: #333;
-            border: 1px solid #bbdefb;
-            font-size: 11px;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .settlement-result {
+            background: #e8f5e8;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .settlement-amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .header {
+                border-radius: 0;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🏠</div>
-            <h1>家務記錄 App</h1>
-            <div class="subtitle">安全雲端同步版本</div>
-            <div class="sync-status" id="sync-status">
-                <span class="status-indicator status-disconnected"></span>
-                <span>離線模式</span>
+            <h1>🏠 家務記錄</h1>
+            <div class="balance-card">
+                <div class="balance-amount" id="totalBalance">$0</div>
+                <div class="balance-label">當前結餘</div>
             </div>
         </div>
 
-        <div class="content">
-            <!-- Navigation Tabs -->
-            <div class="tabs">
-                <button class="tab active" onclick="showTab('record')">記錄</button>
-                <button class="tab" onclick="showTab('manage')">管理</button>
-                <button class="tab" onclick="showTab('balance')">結算</button>
-                <button class="tab" onclick="showTab('sync')">同步</button>
-            </div>
-
-            <!-- Sync Tab -->
-            <div id="sync" class="tab-content">
-                <div class="security-notice">
-                    <h3>🔒 安全保護</h3>
-                    <p>✅ 只有指定的 Google 帳戶可以存取</p>
-                    <p>✅ 所有操作都會被記錄</p>
-                    <p>✅ 資料加密傳輸和存儲</p>
+        <div class="main-content">
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card income">
+                    <div class="stat-amount" id="totalIncome">$0</div>
+                    <div class="stat-label">總收入</div>
                 </div>
-
-                <div class="url-info">
-                    <h4>🔗 連接端點</h4>
-                    <div class="url-display">
-                        https://script.google.com/macros/s/AKfycbzRFxWDCw8lYdQc81F3yNmAzzZ5PpIi9i1lkQ6D5Ag_-rzJpP9EMi6MR1ddMZofCeqe_g/exec
-                    </div>
-                </div>
-
-                <div class="authorized-users">
-                    <h4>👥 授權使用者（僅限以下帳戶）</h4>
-                    <div class="user">
-                        <span>🔐</span>
-                        <span>jeffhimcch@gmail.com</span>
-                    </div>
-                    <div class="user">
-                        <span>🔐</span>
-                        <span>dorothylaw0603@gmail.com</span>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2>🔗 連接狀態</h2>
-                    <button class="btn btn-secondary" onclick="testConnection()" id="test-btn">
-                        <span id="test-text">測試安全連接</span>
-                    </button>
-                    <small style="color: #666; font-size: 12px; display: block; margin-top: 10px;">
-                        ⚠️ 需要使用授權的 Google 帳戶登入
-                    </small>
-                </div>
-
-                <div class="section">
-                    <h2>☁️ 雲端同步</h2>
-                    <button class="btn" onclick="syncToCloud()" id="sync-btn">
-                        <span id="sync-text">上傳到雲端</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="syncFromCloud()" id="download-btn">
-                        <span id="download-text">從雲端下載</span>
-                    </button>
-                    <div id="last-sync" style="font-size: 12px; color: #666; margin-top: 10px;"></div>
-                </div>
-
-                <div class="section">
-                    <h2>🔧 診斷工具</h2>
-                    <button class="btn btn-secondary" onclick="showDebugInfo()">顯示診斷信息</button>
-                    <div id="debug-info"></div>
-                </div>
-
-                <div id="sync-messages"></div>
-            </div>
-
-            <!-- Record Chores Tab -->
-            <div id="record" class="tab-content active">
-                <div class="section">
-                    <h2>📝 記錄完成的家務</h2>
-                    
-                    <div class="person-select">
-                        <button class="person-btn selected" id="person1-btn" onclick="selectPerson('person1')">
-                            <div id="person1-name">Jeff</div>
-                        </button>
-                        <button class="person-btn" id="person2-btn" onclick="selectPerson('person2')">
-                            <div id="person2-name">Dorothy</div>
-                        </button>
-                    </div>
-
-                    <div class="form-group">
-                        <label>選擇家務：</label>
-                        <select id="chore-select">
-                            <option value="">請選擇家務</option>
-                        </select>
-                    </div>
-
-                    <button class="btn" onclick="addChoreLog()">記錄完成</button>
-                </div>
-
-                <div class="section">
-                    <h2>📋 最近記錄</h2>
-                    <div id="recent-logs"></div>
+                <div class="stat-card expense-stat">
+                    <div class="stat-amount" id="totalExpense">$0</div>
+                    <div class="stat-label">總支出</div>
                 </div>
             </div>
 
-            <!-- Manage Chores Tab -->
-            <div id="manage" class="tab-content">
-                <div class="section">
-                    <h2>👥 設定人員名稱</h2>
-                    <div class="form-group">
-                        <label>第一位：</label>
-                        <input type="text" id="name1" value="Jeff" onchange="updateNames()">
-                    </div>
-                    <div class="form-group">
-                        <label>第二位：</label>
-                        <input type="text" id="name2" value="Dorothy" onchange="updateNames()">
-                    </div>
+            <!-- Add Transaction Form -->
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="personSelect">選擇人員</label>
+                    <select id="personSelect">
+                        <option value="阿媽">阿媽</option>
+                        <option value="老豆">老豆</option>
+                        <option value="阿仔">阿仔</option>
+                    </select>
                 </div>
 
-                <div class="section">
-                    <h2>➕ 新增家務類型</h2>
-                    <div class="form-group">
-                        <label>家務名稱：</label>
-                        <input type="text" id="chore-name" placeholder="例如：洗碗">
-                    </div>
-                    <div class="form-group">
-                        <label>金額（HKD）：</label>
-                        <input type="number" id="chore-amount" placeholder="10" min="0" step="1">
-                    </div>
-                    <button class="btn" onclick="addChoreType()">新增家務</button>
+                <div class="form-group">
+                    <label for="amountInput">金額</label>
+                    <input type="number" id="amountInput" placeholder="請輸入金額" step="0.01" min="0">
                 </div>
 
-                <div class="section">
-                    <h2>📝 現有家務類型</h2>
-                    <div id="chore-types"></div>
+                <div class="form-group">
+                    <label for="categorySelect">類別</label>
+                    <select id="categorySelect">
+                        <option value="食物">🍚 食物</option>
+                        <option value="交通">🚌 交通</option>
+                        <option value="日用品">🧴 日用品</option>
+                        <option value="醫療">💊 醫療</option>
+                        <option value="娛樂">🎮 娛樂</option>
+                        <option value="其他">📦 其他</option>
+                    </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="descriptionInput">描述 (選填)</label>
+                    <textarea id="descriptionInput" placeholder="請輸入描述..."></textarea>
+                </div>
+
+                <button class="btn btn-primary" onclick="addTransaction()">
+                    ➕ 新增記錄
+                </button>
+
+                <button class="btn btn-secondary" onclick="openSettlement()">
+                    💰 結算帳目
+                </button>
             </div>
 
-            <!-- Balance Tab -->
-            <div id="balance" class="tab-content">
-                <div class="stats">
-                    <div class="stat-card">
-                        <h4 id="person1-stat">Jeff的收入</h4>
-                        <div class="value" id="person1-total">$0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4 id="person2-stat">Dorothy的收入</h4>
-                        <div class="value" id="person2-total">$0</div>
-                    </div>
+            <!-- Transactions List -->
+            <div class="transactions-section">
+                <div class="section-title">
+                    📋 最近記錄
                 </div>
-
-                <div class="balance">
-                    <h3>💰 結算結果</h3>
-                    <div class="amount" id="balance-amount">$0</div>
-                    <div id="balance-text">沒有差額</div>
-                </div>
-
-                <div class="section">
-                    <h2>💸 記錄付款</h2>
-                    <div class="form-group">
-                        <label>付款金額：</label>
-                        <input type="number" id="payment-amount" placeholder="輸入付款金額" min="0" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>備註：</label>
-                        <input type="text" id="payment-note" placeholder="例如：10月份結算">
-                    </div>
-                    <button class="btn btn-secondary" onclick="recordPayment()">記錄付款</button>
-                </div>
-
-                <div class="section">
-                    <button class="btn btn-danger" onclick="resetAll()">⚠️ 清除所有記錄</button>
-                </div>
+                <div id="transactionsList"></div>
             </div>
         </div>
     </div>
 
+    <!-- Settlement Modal -->
+    <div id="settlementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💰 結算帳目</h2>
+                <button class="close-btn" onclick="closeSettlement()">&times;</button>
+            </div>
+            <div id="settlementContent"></div>
+            <button class="btn btn-primary" onclick="clearAllData()" style="background: #dc3545; margin-top: 20px;">
+                🗑️ 清空所有記錄
+            </button>
+        </div>
+    </div>
+
     <script>
-        // 🔒 SECURE CONFIGURATION - Updated with your URL
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRFxWDCw8lYdQc81F3yNmAzzZ5PpIi9i1lkQ6D5Ag_-rzJpP9EMi6MR1ddMZofCeqe_g/exec';
-        const AUTHORIZED_USERS = ['jeffhimcch@gmail.com', 'dorothylaw0603@gmail.com'];
-
-        // App data structure
-        let appData = {
-            person1: 'Jeff',
-            person2: 'Dorothy',
-            selectedPerson: 'person1',
-            choreTypes: [
-                {name: '洗碗', amount: 10},
-                {name: '拖地', amount: 15},
-                {name: '洗衫', amount: 20},
-                {name: '煮飯', amount: 25}
-            ],
-            choreLogs: [],
-            payments: []
-        };
-
-        // Sync configuration
-        let syncConfig = {
-            isConnected: false,
-            currentUser: null,
-            lastSyncTime: null,
-            lastError: null
-        };
+        // Global variables
+        let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        const people = ['阿媽', '老豆', '阿仔'];
 
         // Initialize app
-        function initializeApp() {
-            loadLocalData();
-            updateUI();
-            updateLastSyncDisplay();
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactions();
+            updateStats();
+        });
 
-        // Load data from localStorage
-        function loadLocalData() {
-            try {
-                const savedData = localStorage.getItem('choreAppData');
-                if (savedData) {
-                    const parsed = JSON.parse(savedData);
-                    appData = {...appData, ...parsed};
-                }
+        // Add transaction
+        function addTransaction() {
+            const person = document.getElementById('personSelect').value;
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const category = document.getElementById('categorySelect').value;
+            const description = document.getElementById('descriptionInput').value;
 
-                const savedSyncConfig = localStorage.getItem('syncConfig');
-                if (savedSyncConfig) {
-                    const parsed = JSON.parse(savedSyncConfig);
-                    syncConfig = {...syncConfig, ...parsed};
-                    
-                    if (syncConfig.isConnected && syncConfig.currentUser) {
-                        updateSyncStatus(`已連接 (${syncConfig.currentUser})`, true);
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading local data:', error);
-                showMessage('載入本地數據時出錯', 'error');
+            if (!amount || amount <= 0) {
+                alert('請輸入有效金額！');
+                return;
             }
+
+            const transaction = {
+                id: Date.now(),
+                person: person,
+                amount: amount,
+                category: category,
+                description: description,
+                date: new Date().toISOString(),
+                timestamp: new Date().toLocaleString('zh-HK')
+            };
+
+            transactions.unshift(transaction);
+            saveTransactions();
+            loadTransactions();
+            updateStats();
+            clearForm();
+
+            // Success feedback
+            alert('記錄已成功新增！');
         }
 
-        // Save data to localStorage
-        function saveData() {
-            try {
-                localStorage.setItem('choreAppData', JSON.stringify(appData));
-            } catch (error) {
-                console.error('Error saving data:', error);
-                showMessage('保存數據失敗', 'error');
-            }
+        // Clear form
+        function clearForm() {
+            document.getElementById('amountInput').value = '';
+            document.getElementById('descriptionInput').value = '';
         }
 
-        // Save sync config
-        function saveSyncConfig() {
-            try {
-                localStorage.setItem('syncConfig', JSON.stringify(syncConfig));
-            } catch (error) {
-                console.error('Error saving sync config:', error);
-            }
+        // Save to localStorage
+        function saveTransactions() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
         }
 
-        // Update sync status display
-        function updateSyncStatus(message, isConnected = false, isConnecting = false) {
-            const statusEl = document.getElementById('sync-status');
-            let statusClass = 'status-disconnected';
+        // Load transactions
+        function loadTransactions() {
+            const container = document.getElementById('transactionsList');
             
-            if (isConnecting) {
-                statusClass = 'status-connecting';
-            } else if (isConnected) {
-                statusClass = 'status-connected';
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px;">📝</div>
+                        <p>暫無記錄</p>
+                        <p style="font-size: 14px;">新增第一筆家務記錄吧！</p>
+                    </div>
+                `;
+                return;
             }
-            
-            statusEl.innerHTML = `<span class="status-indicator ${statusClass}"></span><span>${message}</span>`;
+
+            container.innerHTML = transactions.map(transaction => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <h4>${getCategoryEmoji(transaction.category)} ${transaction.category}</h4>
+                        <p><strong>${transaction.person}</strong> - $${transaction.amount.toFixed(2)}</p>
+                        <p>${transaction.description || '無描述'}</p>
+                        <p style="font-size: 12px; color: #999;">${transaction.timestamp}</p>
+                    </div>
+                    <div>
+                        <div class="transaction-amount">$${transaction.amount.toFixed(2)}</div>
+                        <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">刪除</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // Show messages in sync tab
-        function showMessage(message, type = 'info') {
-            const messagesEl = document.getElementById('sync-messages');
-            const messageEl = document.createElement('div');
-            messageEl.className = type === 'error' ? 'error' : 
-                                 type === 'warning' ? 'warning' : 'success';
-            messageEl.innerHTML = `<strong>${new Date().toLocaleTimeString('zh-HK')}:</strong> ${message}`;
-            messagesEl.insertBefore(messageEl, messagesEl.firstChild);
-            
-            // Keep only last 5 messages
-            while (messagesEl.children.length > 5) {
-                messagesEl.removeChild(messagesEl.lastChild);
+        // Get category emoji
+        function getCategoryEmoji(category) {
+            const emojis = {
+                '食物': '🍚',
+                '交通': '🚌',
+                '日用品': '🧴',
+                '醫療': '💊',
+                '娛樂': '🎮',
+                '其他': '📦'
+            };
+            return emojis[category] || '📦';
+        }
+
+        // Delete transaction
+        function deleteTransaction(id) {
+            if (confirm('確定要刪除這筆記錄嗎？')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveTransactions();
+                loadTransactions();
+                updateStats();
             }
         }
 
-        // Test secure connection
-        async function testConnection() {
-            const testBtn = document.getElementById('test-btn');
-            const testText = document.getElementById('test-text');
+        // Update statistics
+        function updateStats() {
+            const total = transactions.reduce((sum, t) => sum + t.amount, 0);
+            const totalByPerson = {};
             
-            testBtn.disabled = true;
-            testText.innerHTML = '<span class="loading"></span> 連接中...';
-            updateSyncStatus('正在驗證身份...', false, true);
+            people.forEach(person => {
+                totalByPerson[person] = transactions
+                    .filter(t => t.person === person)
+                    .reduce((sum, t) => sum + t.amount, 0);
+            });
 
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 20000);
-                
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'test'
-                    }),
-                    signal: controller.signal,
-                    credentials: 'include'
+            document.getElementById('totalBalance').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('totalIncome').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('totalExpense').textContent = `${transactions.length} 筆`;
+        }
+
+        // Open settlement modal
+        function openSettlement() {
+            const modal = document.getElementById('settlementModal');
+            const content = document.getElementById('settlementContent');
+            
+            if (transactions.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <p>暫無記錄可結算</p>
+                    </div>
+                `;
+            } else {
+                const totalByPerson = {};
+                people.forEach(person => {
+                    totalByPerson[person] = transactions
+                        .filter(t => t.person === person)
+                        .reduce((sum, t) => sum + t.amount, 0);
                 });
 
-                clearTimeout(timeoutId);
+                const total = Object.values(totalByPerson).reduce((sum, amount) => sum + amount, 0);
+                const average = total / people.length;
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    syncConfig.isConnected = true;
-                    syncConfig.currentUser = result.user;
-                    syncConfig.lastError = null;
-                    saveSyncConfig();
-                    
-                    showMessage(`🎉 連接成功！已驗證使用者: ${result.user}`, 'success');
-                    updateSyncStatus(`🔒 安全連接 (${result.user})`, true);
-                    
-                    if (!AUTHORIZED_USERS.includes(result.user)) {
-                        showMessage('⚠️ 警告：當前使用者不在授權名單中', 'warning');
-                    }
-                    
-                    return true;
-                } else {
-                    throw new Error(result.error || 'Unknown server error');
-                }
-            } catch (error) {
-                syncConfig.isConnected = false;
-                syncConfig.currentUser = null;
-                syncConfig.lastError = error.message;
-                saveSyncConfig();
-                
-                let errorMessage = error.message;
-                if (error.name === 'AbortError') {
-                    errorMessage = '連接超時 - 請檢查網絡連接';
-                } else if (error.message.includes('UNAUTHORIZED')) {
-                    errorMessage = '🚫 權限被拒：請使用授權的 Google 帳戶登入';
-                } else if (error.message.includes('Failed to fetch')) {
-                    errorMessage = '網絡錯誤 - 請檢查連接或稍後再試';
-                }
-                
-                showMessage(`❌ 連接失敗: ${errorMessage}`, 'error');
-                updateSyncStatus('連接失敗', false);
-                return false;
-            } finally {
-                testBtn.disabled = false;
-                testText.textContent = '測試安全連接';
-            }
-        }
-
-        // Sync to cloud
-        async function syncToCloud() {
-            if (!syncConfig.isConnected) {
-                showMessage('⚠️ 請先測試連接並登入', 'warning');
-                return;
-            }
-
-            const syncBtn = document.getElementById('sync-btn');
-            const syncText = document.getElementById('sync-text');
-            
-            syncBtn.disabled = true;
-            syncText.innerHTML = '<span class="loading"></span> 上傳中...';
-            updateSyncStatus('正在同步到雲端...', true, true);
-
-            try {
-                const sheets = [
-                    {
-                        name: 'ChoreTypes',
-                        data: [['家務名稱', '金額'], ...appData.choreTypes.map(c => [c.name, c.amount])]
-                    },
-                    {
-                        name: 'ChoreLogs', 
-                        data: [['日期', '時間', '人員', '家務名稱', '金額'], 
-                               ...appData.choreLogs.map(log => [
-                                   log.date, log.time, 
-                                   log.person === 'person1' ? appData.person1 : appData.person2,
-                                   log.choreName, log.amount
-                               ])]
-                    },
-                    {
-                        name: 'Payments',
-                        data: [['日期', '時間', '付款人', '收款人', '金額', '備註'],
-                               ...appData.payments.map(p => [p.date, p.time, p.payer, p.receiver, p.amount, p.note])]
-                    },
-                    {
-                        name: 'Settings',
-                        data: [['設定名稱', '值'], ['person1', appData.person1], ['person2', appData.person2]]
-                    }
-                ];
-
-                for (const sheet of sheets) {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000);
-                    
-                    const response = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            action: 'write',
-                            sheetName: sheet.name,
-                            values: sheet.data
-                        }),
-                        signal: controller.signal,
-                        credentials: 'include'
-                    });
-                    
-                    clearTimeout(timeoutId);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status} 上傳 ${sheet.name} 時出錯`);
-                    }
-                    
-                    const result = await response.json();
-                    if (!result.success) {
-                        throw new Error(result.error || `上傳 ${sheet.name} 失敗`);
-                    }
-                }
-
-                syncConfig.lastSyncTime = new Date().toLocaleString('zh-HK');
-                syncConfig.lastError = null;
-                saveSyncConfig();
-                
-                showMessage('✅ 資料已成功上傳到雲端！', 'success');
-                updateSyncStatus(`🔒 已同步 (${syncConfig.currentUser})`, true);
-                updateLastSyncDisplay();
-
-            } catch (error) {
-                let errorMessage = error.message;
-                if (error.name === 'AbortError') {
-                    errorMessage = '上傳超時';
-                }
-                
-                syncConfig.lastError = errorMessage;
-                saveSyncConfig();
-                showMessage(`❌ 上傳失敗: ${errorMessage}`, 'error');
-                updateSyncStatus('同步失敗', false);
-            } finally {
-                syncBtn.disabled = false;
-                syncText.textContent = '上傳到雲端';
-            }
-        }
-
-        // Sync from cloud
-        async function syncFromCloud() {
-            if (!syncConfig.isConnected) {
-                showMessage('⚠️ 請先測試連接並登入', 'warning');
-                return;
-            }
-
-            const downloadBtn = document.getElementById('download-btn');
-            const downloadText = document.getElementById('download-text');
-            
-            downloadBtn.disabled = true;
-            downloadText.innerHTML = '<span class="loading"></span> 下載中...';
-            updateSyncStatus('正在從雲端下載...', true, true);
-
-            try {
-                const sheets = ['ChoreTypes', 'ChoreLogs', 'Payments', 'Settings'];
-                
-                for (const sheetName of sheets) {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000);
-                    
-                    const response = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            action: 'read',
-                            sheetName: sheetName
-                        }),
-                        signal: controller.signal,
-                        credentials: 'include'
-                    });
-                    
-                    clearTimeout(timeoutId);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status} 下載 ${sheetName} 時出錯`);
-                    }
-                    
-                    const result = await response.json();
-                    if (result.success && result.data && result.data.length > 1) {
-                        processDownloadedData(sheetName, result.data);
-                    }
-                }
-
-                syncConfig.lastSyncTime = new Date().toLocaleString('zh-HK');
-                syncConfig.lastError = null;
-                saveSyncConfig();
-                
-                saveData();
-                updateUI();
-                showMessage('✅ 資料已成功從雲端下載！', 'success');
-                updateSyncStatus(`🔒 已同步 (${syncConfig.currentUser})`, true);
-                updateLastSyncDisplay();
-
-            } catch (error) {
-                let errorMessage = error.message;
-                if (error.name === 'AbortError') {
-                    errorMessage = '下載超時';
-                }
-                
-                syncConfig.lastError = errorMessage;
-                saveSyncConfig();
-                showMessage(`❌ 下載失敗: ${errorMessage}`, 'error');
-                updateSyncStatus('同步失敗', false);
-            } finally {
-                downloadBtn.disabled = false;
-                downloadText.textContent = '從雲端下載';
-            }
-        }
-
-        // Process downloaded data
-        function processDownloadedData(sheetName, data) {
-            try {
-                switch(sheetName) {
-                    case 'ChoreTypes':
-                        appData.choreTypes = data.slice(1).map(row => ({
-                            name: row[0] || '',
-                            amount: parseInt(row[1]) || 0
-                        })).filter(item => item.name);
-                        break;
-                    case 'ChoreLogs':
-                        appData.choreLogs = data.slice(1).map(row => ({
-                            date: row[0] || '',
-                            time: row[1] || '',
-                            person: row[2] === appData.person1 ? 'person1' : 'person2',
-                            choreName: row[3] || '',
-                            amount: parseInt(row[4]) || 0
-                        })).filter(item => item.date && item.choreName);
-                        break;
-                    case 'Payments':
-                        appData.payments = data.slice(1).map(row => ({
-                            date: row[0] || '',
-                            time: row[1] || '',
-                            payer: row[2] || '',
-                            receiver: row[3] || '',
-                            amount: parseInt(row[4]) || 0,
-                            note: row[5] || ''
-                        })).filter(item => item.date && item.payer);
-                        break;
-                    case 'Settings':
-                        data.slice(1).forEach(row => {
-                            if (row[0] === 'person1' && row[1]) appData.person1 = row[1];
-                            if (row[0] === 'person2' && row[1]) appData.person2 = row[1];
-                        });
-                        break;
-                }
-            } catch (error) {
-                console.error(`Error processing ${sheetName}:`, error);
-                showMessage(`處理 ${sheetName} 數據時出錯`, 'error');
-            }
-        }
-
-        // Show debug information
-        function showDebugInfo() {
-            const debugDiv = document.getElementById('debug-info');
-            const info = {
-                'Apps Script URL': APPS_SCRIPT_URL,
-                'Connection Status': syncConfig.isConnected ? '已連接' : '未連接',
-                'Current User': syncConfig.currentUser || '無',
-                'Last Sync': syncConfig.lastSyncTime || '從未同步',
-                'Last Error': syncConfig.lastError || '無',
-                'User Agent': navigator.userAgent,
-                'Is PWA': window.matchMedia('(display-mode: standalone)').matches ? '是' : '否',
-                'Current URL': window.location.href,
-                'Local Storage': localStorage ? '可用' : '不可用',
-                'Data Records': {
-                    'Chore Types': appData.choreTypes.length,
-                    'Chore Logs': appData.choreLogs.length,
-                    'Payments': appData.payments.length
-                }
-            };
-            
-            debugDiv.innerHTML = '<div class="debug-info">' + 
-                Object.entries(info).map(([key, value]) => 
-                    `<strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`
-                ).join('<br>') + '</div>';
-        }
-
-        // Update last sync display
-        function updateLastSyncDisplay() {
-            const lastSyncEl = document.getElementById('last-sync');
-            if (syncConfig.lastSyncTime) {
-                lastSyncEl.innerHTML = `🕐 最後同步時間: ${syncConfig.lastSyncTime}`;
-            } else {
-                lastSyncEl.innerHTML = '🕐 尚未同步';
-            }
-        }
-
-        // Auto-sync helper
-        function autoSync() {
-            if (syncConfig.isConnected) {
-                setTimeout(() => {
-                    syncToCloud();
-                }, 1500);
-            }
-        }
-
-        // Show specific tab
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-
-            if (tabName === 'balance') {
-                updateBalance();
-            }
-        }
-
-        // Select person for chore logging
-        function selectPerson(person) {
-            appData.selectedPerson = person;
-            document.querySelectorAll('.person-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            document.getElementById(person + '-btn').classList.add('selected');
-        }
-
-        // Update names throughout the app
-        function updateNames() {
-            appData.person1 = document.getElementById('name1').value;
-            appData.person2 = document.getElementById('name2').value;
-            
-            document.getElementById('person1-name').textContent = appData.person1;
-            document.getElementById('person2-name').textContent = appData.person2;
-            document.getElementById('person1-stat').textContent = appData.person1 + '的收入';
-            document.getElementById('person2-stat').textContent = appData.person2 + '的收入';
-            
-            saveData();
-            updateBalance();
-            autoSync();
-        }
-
-        // Add new chore type
-        function addChoreType() {
-            const name = document.getElementById('chore-name').value.trim();
-            const amount = parseInt(document.getElementById('chore-amount').value);
-
-            if (name && amount > 0) {
-                appData.choreTypes.push({name, amount});
-                document.getElementById('chore-name').value = '';
-                document.getElementById('chore-amount').value = '';
-                updateChoreTypes();
-                updateChoreSelect();
-                saveData();
-                autoSync();
-                showMessage(`➕ 新增家務: ${name} ($${amount})`, 'success');
-            } else {
-                showMessage('⚠️ 請輸入有效的家務名稱和金額', 'warning');
-            }
-        }
-
-        // Delete chore type
-        function deleteChoreType(index) {
-            if (confirm('確定要删除這個家務類型嗎？')) {
-                const deleted = appData.choreTypes.splice(index, 1)[0];
-                updateChoreTypes();
-                updateChoreSelect();
-                saveData();
-                autoSync();
-                showMessage(`🗑️ 删除家務: ${deleted.name}`, 'success');
-            }
-        }
-
-        // Add chore log
-        function addChoreLog() {
-            const choreSelect = document.getElementById('chore-select');
-            const choreIndex = choreSelect.value;
-
-            if (choreIndex === '') {
-                showMessage('⚠️ 請選擇家務類型', 'warning');
-                return;
-            }
-
-            const chore = appData.choreTypes[choreIndex];
-            const log = {
-                date: new Date().toLocaleDateString('zh-HK'),
-                time: new Date().toLocaleTimeString('zh-HK', {hour: '2-digit', minute: '2-digit'}),
-                person: appData.selectedPerson,
-                choreName: chore.name,
-                amount: chore.amount
-            };
-
-            appData.choreLogs.unshift(log);
-            updateRecentLogs();
-            saveData();
-            choreSelect.value = '';
-            autoSync();
-
-            const personName = appData.selectedPerson === 'person1' ? appData.person1 : appData.person2;
-            showMessage(`✅ ${personName} 完成了 ${chore.name} (+$${chore.amount})`, 'success');
-        }
-
-        // Record payment
-        function recordPayment() {
-            const amount = parseInt(document.getElementById('payment-amount').value);
-            const note = document.getElementById('payment-note').value.trim();
-
-            if (amount > 0) {
-                const balance = calculateBalance();
-                let payer, receiver;
-
-                if (balance.owePerson === 'person1') {
-                    payer = appData.person1;
-                    receiver = appData.person2;
-                } else {
-                    payer = appData.person2;
-                    receiver = appData.person1;
-                }
-
-                const payment = {
-                    date: new Date().toLocaleDateString('zh-HK'),
-                    time: new Date().toLocaleTimeString('zh-HK', {hour: '2-digit', minute: '2-digit'}),
-                    payer,
-                    receiver,
-                    amount,
-                    note: note || '結算付款'
-                };
-
-                appData.payments.push(payment);
-                document.getElementById('payment-amount').value = '';
-                document.getElementById('payment-note').value = '';
-                updateBalance();
-                saveData();
-                autoSync();
-                showMessage(`💸 記錄付款: ${payer} 付了 $${amount} 給 ${receiver}`, 'success');
-            } else {
-                showMessage('⚠️ 請輸入有效的付款金額', 'warning');
-            }
-        }
-
-        // Calculate balance
-        function calculateBalance() {
-            const person1Total = appData.choreLogs
-                .filter(log => log.person === 'person1')
-                .reduce((sum, log) => sum + log.amount, 0);
-
-            const person2Total = appData.choreLogs
-                .filter(log => log.person === 'person2')
-                .reduce((sum, log) => sum + log.amount, 0);
-
-            const person1Payments = appData.payments
-                .filter(payment => payment.payer === appData.person1)
-                .reduce((sum, payment) => sum + payment.amount, 0);
-
-            const person2Payments = appData.payments
-                .filter(payment => payment.payer === appData.person2)
-                .reduce((sum, payment) => sum + payment.amount, 0);
-
-            const adjustedPerson1 = person1Total - person1Payments + person2Payments;
-            const adjustedPerson2 = person2Total - person2Payments + person1Payments;
-
-            const difference = Math.abs(adjustedPerson1 - adjustedPerson2);
-            const owePerson = adjustedPerson1 < adjustedPerson2 ? 'person1' : 'person2';
-
-            return {
-                person1Total: adjustedPerson1,
-                person2Total: adjustedPerson2,
-                difference,
-                owePerson: difference > 0 ? owePerson : null
-            };
-        }
-
-        // Update balance display
-        function updateBalance() {
-            const balance = calculateBalance();
-
-            document.getElementById('person1-total').textContent = `$${balance.person1Total}`;
-            document.getElementById('person2-total').textContent = `$${balance.person2Total}`;
-
-            const balanceAmountEl = document.getElementById('balance-amount');
-            const balanceTextEl = document.getElementById('balance-text');
-
-            if (balance.difference === 0) {
-                balanceAmountEl.textContent = '$0';
-                balanceTextEl.textContent = '沒有差額';
-            } else {
-                balanceAmountEl.textContent = `$${balance.difference}`;
-                const oweName = balance.owePerson === 'person1' ? appData.person1 : appData.person2;
-                const receiveName = balance.owePerson === 'person1' ? appData.person2 : appData.person1;
-                balanceTextEl.textContent = `${oweName} 要付 ${receiveName}`;
-            }
-        }
-
-        // Update chore types display
-        function updateChoreTypes() {
-            const container = document.getElementById('chore-types');
-            container.innerHTML = '';
-
-            appData.choreTypes.forEach((chore, index) => {
-                const div = document.createElement('div');
-                div.className = 'chore-item';
-                div.innerHTML = `
-                    <span>${chore.name} - $${chore.amount}</span>
-                    <button class="btn btn-danger btn-small" onclick="deleteChoreType(${index})">删除</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // Update chore select dropdown
-        function updateChoreSelect() {
-            const select = document.getElementById('chore-select');
-            select.innerHTML = '<option value="">請選擇家務</option>';
-
-            appData.choreTypes.forEach((chore, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${chore.name} ($${chore.amount})`;
-                select.appendChild(option);
-            });
-        }
-
-        // Update recent logs display
-        function updateRecentLogs() {
-            const container = document.getElementById('recent-logs');
-            container.innerHTML = '';
-
-            const recentLogs = appData.choreLogs.slice(0, 5);
-            recentLogs.forEach(log => {
-                const div = document.createElement('div');
-                div.className = 'log-item';
-                const personName = log.person === 'person1' ? appData.person1 : appData.person2;
-                div.innerHTML = `
-                    <div>
-                        <strong>${personName}</strong><br>
-                        <small>${log.date} ${log.time}</small>
+                content.innerHTML = `
+                    <div class="stats-grid" style="grid-template-columns: 1fr;">
+                        ${people.map(person => `
+                            <div class="stat-card">
+                                <div class="stat-amount" style="color: ${totalByPerson[person] >= average ? '#28a745' : '#dc3545'}">
+                                    $${totalByPerson[person].toFixed(2)}
+                                </div>
+                                <div class="stat-label">${person}</div>
+                                <div style="font-size: 12px; color: #6c757d; margin-top: 5px;">
+                                    ${totalByPerson[person] >= average ? '多付' : '少付'} $${Math.abs(totalByPerson[person] - average).toFixed(2)}
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
-                    <div>
-                        ${log.choreName}<br>
-                        <strong style="color: #4CAF50;">+$${log.amount}</strong>
+                    
+                    <div class="settlement-result">
+                        <div class="settlement-amount">總支出: $${total.toFixed(2)}</div>
+                        <div>平均每人: $${average.toFixed(2)}</div>
+                        <div style="margin-top: 15px; font-size: 14px;">
+                            <strong>結算建議:</strong><br>
+                            ${people.map(person => {
+                                const diff = totalByPerson[person] - average;
+                                if (Math.abs(diff) < 0.01) return `${person}: 已平衡 ✅`;
+                                return diff > 0 
+                                    ? `${person}: 應收回 $${diff.toFixed(2)} 💰`
+                                    : `${person}: 應付出 $${Math.abs(diff).toFixed(2)} 💳`;
+                            }).join('<br>')}
+                        </div>
                     </div>
                 `;
-                container.appendChild(div);
-            });
+            }
+            
+            modal.style.display = 'flex';
+        }
 
-            if (recentLogs.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">還沒有記錄</div>';
+        // Close settlement modal
+        function closeSettlement() {
+            document.getElementById('settlementModal').style.display = 'none';
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('確定要清空所有記錄嗎？此操作無法恢復！')) {
+                transactions = [];
+                saveTransactions();
+                loadTransactions();
+                updateStats();
+                closeSettlement();
+                alert('所有記錄已清空！');
             }
         }
 
-        // Reset all data
-        function resetAll() {
-            if (confirm('⚠️ 確定要清除所有記錄嗎？此操作無法撤銷！')) {
-                appData.choreLogs = [];
-                appData.payments = [];
-                updateUI();
-                saveData();
-                autoSync();
-                showMessage('🗑️ 所有記錄已清除', 'success');
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('settlementModal');
+            if (event.target === modal) {
+                closeSettlement();
             }
         }
 
-        // Update entire UI
-        function updateUI() {
-            updateNames();
-            updateChoreTypes();
-            updateChoreSelect();
-            updateRecentLogs();
-            updateBalance();
-        }
-
-        // Register service worker for PWA
+        // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful');
-                }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
             });
         }
 
-        // Initialize app when page loads
-        window.addEventListener('load', initializeApp);
+        // Add to home screen prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('App can be installed');
+        });
     </script>
 </body>
 </html>
