@@ -2,674 +2,1618 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>家務記錄 App</title>
-    
-    <!-- iOS PWA Configuration -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="家務記錄">
-    <meta name="theme-color" content="#4CAF50">
-    
-    <!-- Your Custom iOS Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="./icon-192.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="./icon-192.png">
-    
-    <!-- Standard favicon -->
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="./icon-192.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./icon-192.png">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏮 亂道場の修行列表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Seto:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Seto:wght@400;600&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        
+        body { 
+            font-family: 'Seto', serif;
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFF3E0 30%, #FCF3CF 70%, #F8F4E6 100%);
             min-height: 100vh;
-            padding: 0;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        /* iOS Safe Area Support */
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 0;
-            box-shadow: none;
-            min-height: 100vh;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-            padding: 40px 20px 30px;
-            text-align: center;
+            color: #6D4C41;
+            padding: 0 0 80px 0;
             position: relative;
         }
 
-        .header h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .balance-card {
-            background: rgba(255,255,255,0.2);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .balance-amount {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .balance-label {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .main-content {
-            padding: 30px 20px;
-        }
-
-        .input-section {
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            -webkit-appearance: none;
-            appearance: none;
-            background: white;
-        }
-
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 15px;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #6c757d;
-            border: 2px solid #e1e5e9;
-        }
-
-        .transactions-section {
-            margin-top: 30px;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .transaction-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border-left: 4px solid #4CAF50;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .transaction-info h4 {
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .transaction-info p {
-            font-size: 14px;
-            color: #6c757d;
-            margin: 2px 0;
-        }
-
-        .transaction-amount {
-            font-size: 18px;
-            font-weight: bold;
-            color: #4CAF50;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-            transition: all 0.3s ease;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6c757d;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-amount {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: #6c757d;
-        }
-
-        .income .stat-amount {
-            color: #28a745;
-        }
-
-        .expense-stat .stat-amount {
-            color: #dc3545;
-        }
-
-        .modal {
-            display: none;
+        /* 溫和背景裝飾 */
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,241,118,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,204,128,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(251,192,147,0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin: 20px;
-            max-width: 400px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #6c757d;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .settlement-result {
-            background: #e8f5e8;
-            border: 2px solid #4CAF50;
-            border-radius: 12px;
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
             padding: 20px;
-            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255,253,236,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px 30px;
+            box-shadow: 0 6px 25px rgba(205,180,119,0.15);
+            border: 1px solid rgba(255,245,157,0.3);
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #D4AC0D, #F1C40F, #F39C12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(212,172,13,0.2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #E67E22;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(230,126,34,0.15);
+        }
+        
+        .status-bar {
+            background: rgba(255,253,236,0.9);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 25px rgba(205,180,119,0.12);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,245,157,0.25);
+        }
+        
+        .card {
+            background: rgba(255,253,236,0.9);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 25px rgba(205,180,119,0.12);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,245,157,0.25);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(205,180,119,0.18);
+        }
+
+        /* 今日修行總結卡片 */
+        .today-summary {
+            background: linear-gradient(135deg, rgba(255,249,196,0.9) 0%, rgba(255,245,157,0.9) 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(212,172,13,0.15);
+            border: 1px solid rgba(241,196,15,0.3);
+        }
+
+        .summary-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #B7950B;
+            margin-bottom: 15px;
             text-align: center;
         }
 
-        .settlement-amount {
-            font-size: 28px;
-            font-weight: bold;
-            color: #4CAF50;
-            margin-bottom: 10px;
+        .summary-content {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
         }
 
-        /* iOS Status Bar Detection */
-        @supports (padding-top: env(safe-area-inset-top)) {
+        .person-summary {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 15px;
+            border: 1px solid rgba(241,196,15,0.2);
+        }
+
+        .person-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #7D6608;
+        }
+
+        .completed-tasks {
+            font-size: 0.95em;
+            color: #A9790B;
+            line-height: 1.4;
+        }
+
+        .task-count {
+            font-weight: 600;
+            color: #D4AC0D;
+            margin-top: 5px;
+        }
+
+        .earned-today {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-top: 8px;
+        }
+        
+        /* 底部分頁列表 */
+        .tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            background: rgba(255,253,236,0.95);
+            backdrop-filter: blur(15px);
+            border-top: 2px solid rgba(241,196,15,0.25);
+            box-shadow: 0 -6px 25px rgba(205,180,119,0.15);
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+        }
+        
+        .tab {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #A9790B;
+            font-weight: 600;
+            font-size: 0.9em;
+            border-radius: 0;
+            position: relative;
+        }
+        
+        .tab.active {
+            background: linear-gradient(45deg, #F7DC6F, #F4D03F);
+            color: #7D6608;
+            box-shadow: 0 4px 15px rgba(212,172,13,0.2);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border: 2px solid rgba(248,196,113,0.4);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,251,235,0.8) 100%);
+        }
+        
+        .task-item:hover {
+            border-color: rgba(229,177,58,0.6);
+            box-shadow: 0 6px 20px rgba(205,180,119,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #6D4C41;
+            font-size: 1.1em;
+        }
+        
+        .task-completion-status {
+            font-size: 0.95em;
+            color: #8D6E63;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .completion-count {
+            display: inline-block;
+            background: linear-gradient(45deg, #E8F5E8, #C8E6C9);
+            color: #2E7D32;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 8px;
+            border: 1px solid rgba(76,175,80,0.2);
+        }
+        
+        .complete-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .complete-btn {
+            background: linear-gradient(45deg, #81C784, #66BB6A);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            min-width: 80px;
+            font-family: 'Seto', serif;
+        }
+        
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(129,199,132,0.4);
+            background: linear-gradient(45deg, #66BB6A, #4CAF50);
+        }
+        
+        .money-badge {
+            background: linear-gradient(45deg, #FFF176, #FFEB3B);
+            color: #F57F17;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            font-weight: 700;
+            margin-right: 15px;
+            box-shadow: 0 3px 10px rgba(255,235,59,0.3);
+            border: 1px solid rgba(249,168,37,0.2);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #6D4C41;
+            font-size: 1.05em;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(248,196,113,0.4);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+            font-family: 'Seto', serif;
+            color: #6D4C41;
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: rgba(229,177,58,0.6);
+            box-shadow: 0 0 15px rgba(205,180,119,0.2);
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #E67E22, #D68910);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+            font-family: 'Seto', serif;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(230,126,34,0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #E74C3C, #C0392B);
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 8px 25px rgba(231,76,60,0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #81C784, #66BB6A);
+            margin-top: 15px;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(45deg, #66BB6A, #4CAF50);
+            box-shadow: 0 8px 25px rgba(129,199,132,0.4);
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-left: 4px solid #F7DC6F;
+            background: linear-gradient(135deg, rgba(255,251,235,0.8) 0%, rgba(255,255,255,0.8) 100%);
+            margin-bottom: 10px;
+            border-radius: 0 12px 12px 0;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: linear-gradient(135deg, rgba(255,251,235,1) 0%, rgba(255,255,255,1) 100%);
+            box-shadow: 0 4px 15px rgba(247,220,111,0.2);
+        }
+        
+        .history-info {
+            flex: 1;
+            font-weight: 500;
+            color: #6D4C41;
+        }
+        
+        .history-time {
+            font-size: 0.85em;
+            color: #A9790B;
+            margin-left: 15px;
+        }
+        
+        .balance-display {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+        
+        .balance-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #F7DC6F 0%, #F4D03F 100%);
+            color: #7D6608;
+            border-radius: 20px;
+            flex: 1;
+            box-shadow: 0 6px 20px rgba(212,172,13,0.25);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(241,196,15,0.2);
+        }
+
+        .balance-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212,172,13,0.3);
+        }
+        
+        .balance-amount {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .balance-label {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(109,76,65,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+        }
+        
+        .loading-content {
+            background: rgba(255,253,236,0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            font-family: 'Seto', serif;
+            color: #6D4C41;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(248,196,113,0.3);
+            border-top: 4px solid #F4D03F;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            font-family: 'Seto', serif;
+        }
+        
+        .alert-success {
+            background: rgba(232,245,233,0.9);
+            color: #2E7D32;
+            border: 1px solid rgba(129,199,132,0.5);
+        }
+        
+        .alert-error {
+            background: rgba(255,235,238,0.9);
+            color: #C62828;
+            border: 1px solid rgba(239,83,80,0.5);
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background: rgba(255,253,236,0.9);
+            color: #6D4C41;
+            border: 2px solid #F7DC6F;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-family: 'Seto', serif;
+        }
+        
+        .logout-btn:hover {
+            background: #F7DC6F;
+            color: #7D6608;
+            transform: translateY(-2px);
+        }
+
+        .sync-status {
+            position: fixed;
+            bottom: 70px;
+            right: 25px;
+            background: rgba(255,253,236,0.9);
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            box-shadow: 0 4px 15px rgba(205,180,119,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(247,220,111,0.3);
+            font-weight: 500;
+            font-family: 'Seto', serif;
+            color: #6D4C41;
+        }
+
+        /* ✨ 改進版欠款處理區域 */
+        .debt-section {
+            background: linear-gradient(135deg, rgba(255,245,238,0.9) 0%, rgba(255,248,225,0.9) 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,193,7,0.3);
+            box-shadow: 0 4px 20px rgba(205,180,119,0.1);
+        }
+
+        .debt-display {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.8);
+            border: 2px solid rgba(255,193,7,0.4);
+        }
+
+        .debt-positive {
+            color: #2E7D32;
+            border-color: rgba(76,175,80,0.4) !important;
+            background: rgba(232,245,233,0.9) !important;
+        }
+
+        .debt-negative {
+            color: #E65100;
+            border-color: rgba(255,87,34,0.4) !important;
+            background: rgba(255,243,224,0.9) !important;
+        }
+
+        .payment-form {
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,193,7,0.3);
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #6D4C41;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(247,220,111,0.3);
+        }
+
+        .transfer-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .amount-input {
+            grid-column: span 2;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: 2px solid rgba(248,196,113,0.6);
+            border-radius: 25px;
+            background: rgba(255,251,235,0.9);
+            color: #6D4C41;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-family: 'Seto', serif;
+            font-size: 0.95em;
+        }
+
+        .quick-btn:hover {
+            background: #F7DC6F;
+            border-color: rgba(212,172,13,0.8);
+            transform: translateY(-2px);
+        }
+
+        .quick-btn.active {
+            background: linear-gradient(45deg, #F7DC6F, #F4D03F);
+            border-color: #D4AC0D;
+            color: #7D6608;
+        }
+
+        /* 手機響應式優化 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .header p {
+                font-size: 1.1em;
+            }
+            
+            .tabs {
+                height: 50px;
+            }
+            
+            .tab {
+                font-size: 0.8em;
+            }
+
             body {
-                padding-top: env(safe-area-inset-top);
+                padding-bottom: 60px;
+            }
+
+            .summary-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .transfer-inputs {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .amount-input {
+                grid-column: span 1;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+            }
+
+            .quick-btn {
+                min-width: auto;
             }
         }
 
-        /* Standalone mode detection */
-        @media all and (display-mode: standalone) {
-            .container {
-                border-radius: 0;
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .tab {
+                font-size: 0.7em;
             }
         }
     </style>
-
-    <!-- Inline Manifest for PWA -->
-    <script>
-        // Create manifest with your custom icon
-        const manifestData = {
-            "name": "家務記錄 App",
-            "short_name": "家務記錄",
-            "description": "安全的家務記錄和結算應用程式",
-            "start_url": "./",
-            "display": "standalone",
-            "background_color": "#ffffff",
-            "theme_color": "#4CAF50",
-            "orientation": "portrait",
-            "scope": "./",
-            "icons": [
-                {
-                    "src": "./icon-192.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                {
-                    "src": "./icon-192.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                },
-                {
-                    "src": "./icon-192.png",
-                    "sizes": "180x180",
-                    "type": "image/png"
-                }
-            ]
-        };
-
-        // Register manifest
-        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-        const manifestURL = URL.createObjectURL(manifestBlob);
-        
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = manifestURL;
-        document.head.appendChild(link);
-    </script>
 </head>
 <body>
+    <!-- 登出按鈕 -->
+    <button class="logout-btn" onclick="logout()" style="display: none;" id="logoutBtn">🚪 離開道場</button>
+    
+    <!-- 同步狀態 -->
+    <div class="sync-status" id="syncStatus">🏮 已連接道場</div>
+    
     <div class="container">
         <div class="header">
-            <h1>🏠 家務記錄</h1>
-            <div class="balance-card">
-                <div class="balance-amount" id="totalBalance">$0</div>
-                <div class="balance-label">當前結餘</div>
+            <h1>🏮 亂道場の修行列表</h1>
+            <p id="welcomeMessage">嚟賺錢啦！</p>
+        </div>
+        
+        <!-- 狀態欄 -->
+        <div class="status-bar" id="statusBar">
+            <div class="balance-display">
+                <div class="balance-card">
+                    <div class="balance-amount" id="jeffreyBalance">$0</div>
+                    <div class="balance-label">Jeffrey の修行金</div>
+                </div>
+                <div class="balance-card">
+                    <div class="balance-amount" id="kikiBalance">$0</div>
+                    <div class="balance-label">Kiki の修行金</div>
+                </div>
             </div>
         </div>
-
-        <div class="main-content">
-            <!-- Statistics -->
-            <div class="stats-grid">
-                <div class="stat-card income">
-                    <div class="stat-amount" id="totalIncome">$0</div>
-                    <div class="stat-label">總收入</div>
-                </div>
-                <div class="stat-card expense-stat">
-                    <div class="stat-amount" id="totalExpense">$0</div>
-                    <div class="stat-label">總支出</div>
+        
+        <!-- 任務清單 -->
+        <div id="tasks" class="tab-content active">
+            <!-- 今日修行總結 -->
+            <div class="today-summary">
+                <div class="summary-title">📊 今日修行總結</div>
+                <div class="summary-content">
+                    <div class="person-summary">
+                        <div class="person-name">Jeffrey</div>
+                        <div class="completed-tasks" id="jeffreyTodayTasks">今日還未開始修行</div>
+                        <div class="task-count" id="jeffreyTaskCount">0項任務</div>
+                        <div class="earned-today" id="jeffreyEarnedToday">$0.00</div>
+                    </div>
+                    <div class="person-summary">
+                        <div class="person-name">Kiki</div>
+                        <div class="completed-tasks" id="kikiTodayTasks">今日還未開始修行</div>
+                        <div class="task-count" id="kikiTaskCount">0項任務</div>
+                        <div class="earned-today" id="kikiEarnedToday">$0.00</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Add Transaction Form -->
-            <div class="input-section">
-                <div class="form-group">
-                    <label for="personSelect">選擇人員</label>
-                    <select id="personSelect">
-                        <option value="阿媽">阿媽</option>
-                        <option value="老豆">老豆</option>
-                        <option value="阿仔">阿仔</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="amountInput">金額</label>
-                    <input type="number" id="amountInput" placeholder="請輸入金額" step="0.01" min="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="categorySelect">類別</label>
-                    <select id="categorySelect">
-                        <option value="食物">🍚 食物</option>
-                        <option value="交通">🚌 交通</option>
-                        <option value="日用品">🧴 日用品</option>
-                        <option value="醫療">💊 醫療</option>
-                        <option value="娛樂">🎮 娛樂</option>
-                        <option value="其他">📦 其他</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="descriptionInput">描述 (選填)</label>
-                    <textarea id="descriptionInput" placeholder="請輸入描述..."></textarea>
-                </div>
-
-                <button class="btn btn-primary" onclick="addTransaction()">
-                    ➕ 新增記錄
-                </button>
-
-                <button class="btn btn-secondary" onclick="openSettlement()">
-                    💰 結算帳目
-                </button>
+            <div class="card">
+                <h2>📋 修行項目（可重複完成）</h2>
+                <div id="taskList"></div>
             </div>
-
-            <!-- Transactions List -->
-            <div class="transactions-section">
-                <div class="section-title">
-                    📋 最近記錄
+        </div>
+        
+        <!-- 新增任務 -->
+        <div id="add-task" class="tab-content">
+            <div class="card">
+                <h2>➕ 新增修行項目</h2>
+                <div class="input-group">
+                    <label for="taskName">修行項目名稱</label>
+                    <input type="text" id="taskName" placeholder="例：洗碗修行、掃地冥想">
                 </div>
-                <div id="transactionsList"></div>
+                <div class="input-group">
+                    <label for="taskPoints">修行獎金 ($)</label>
+                    <input type="number" id="taskPoints" min="0.1" max="100" step="0.1" value="5.0">
+                </div>
+                <button class="btn" onclick="addTask()">新增修行項目</button>
+            </div>
+        </div>
+        
+        <!-- ✨ 全新欠款結算系統 -->
+        <div id="payment" class="tab-content">
+            <div class="card">
+                <h2>💰 修行金結算</h2>
+                
+                <!-- 當前欠債顯示 -->
+                <div class="debt-section">
+                    <div class="debt-display" id="debtDisplay">計算中...</div>
+                </div>
+
+                <!-- 轉賬記錄表單 -->
+                <div class="payment-form">
+                    <div class="form-title">💸 記錄轉賬</div>
+                    
+                    <!-- 快速選擇按鈕 -->
+                    <div class="quick-actions">
+                        <div class="quick-btn" onclick="setTransfer('Jeffrey', 'Kiki')">Jeffrey → Kiki</div>
+                        <div class="quick-btn" onclick="setTransfer('Kiki', 'Jeffrey')">Kiki → Jeffrey</div>
+                    </div>
+
+                    <!-- 詳細轉賬資訊 -->
+                    <div class="transfer-inputs">
+                        <div class="input-group">
+                            <label for="paymentFrom">轉賬人</label>
+                            <select id="paymentFrom">
+                                <option value="">選擇轉賬人</option>
+                                <option value="Jeffrey">Jeffrey</option>
+                                <option value="Kiki">Kiki</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="paymentTo">收款人</label>
+                            <select id="paymentTo">
+                                <option value="">選擇收款人</option>
+                                <option value="Jeffrey">Jeffrey</option>
+                                <option value="Kiki">Kiki</option>
+                            </select>
+                        </div>
+                        <div class="input-group amount-input">
+                            <label for="paymentAmount">轉賬金額 ($)</label>
+                            <input type="number" id="paymentAmount" min="0" step="0.01" placeholder="輸入轉賬金額">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success" onclick="recordPayment()">💰 記錄轉賬</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 歷史記錄 -->
+        <div id="history" class="tab-content">
+            <div class="card">
+                <h2>📊 修行完成記錄</h2>
+                <div id="completionHistory"></div>
+            </div>
+            <div class="card">
+                <h2>💳 轉賬記錄</h2>
+                <div id="paymentHistory"></div>
+            </div>
+            <div class="card">
+                <h2>⚙️ 道場管理</h2>
+                <button class="btn btn-danger" onclick="resetData()">重置道場資料</button>
             </div>
         </div>
     </div>
-
-    <!-- Settlement Modal -->
-    <div id="settlementModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>💰 結算帳目</h2>
-                <button class="close-btn" onclick="closeSettlement()">&times;</button>
-            </div>
-            <div id="settlementContent"></div>
-            <button class="btn btn-primary" onclick="clearAllData()" style="background: #dc3545; margin-top: 20px;">
-                🗑️ 清空所有記錄
-            </button>
+    
+    <!-- 底部分頁列表 -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('tasks')">📋 修行清單</div>
+        <div class="tab" onclick="switchTab('add-task')">➕ 新增修行</div>
+        <div class="tab" onclick="switchTab('payment')">💰 結算欠款</div>
+        <div class="tab" onclick="switchTab('history')">📊 修行記錄</div>
+    </div>
+    
+    <!-- 載入畫面 -->
+    <div class="loading" id="loadingScreen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div id="loadingText">連接道場中...</div>
         </div>
     </div>
 
     <script>
-        // Global variables
-        let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-        const people = ['阿媽', '老豆', '阿仔'];
+        // 🌐 Google Apps Script URL
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7oJWIsYibMDWt0Ozp6msVT89K5sO86yHwUl3lXyPQXvXR0b5MGSArqkE38sG75HalTQ/exec';
+        
+        // 全域變數
+        let currentUser = null;
+        let tasks = [];
+        let completions = [];
+        let payments = [];
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTransactions();
-            updateStats();
-            
-            // Check if running as standalone PWA
-            if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('Running as standalone PWA! ✅');
-                document.body.style.paddingTop = 'env(safe-area-inset-top)';
-            }
-        });
-
-        // Add transaction
-        function addTransaction() {
-            const person = document.getElementById('personSelect').value;
-            const amount = parseFloat(document.getElementById('amountInput').value);
-            const category = document.getElementById('categorySelect').value;
-            const description = document.getElementById('descriptionInput').value;
-
-            if (!amount || amount <= 0) {
-                alert('請輸入有效金額！');
-                return;
-            }
-
-            const transaction = {
-                id: Date.now(),
-                person: person,
-                amount: amount,
-                category: category,
-                description: description,
-                date: new Date().toISOString(),
-                timestamp: new Date().toLocaleString('zh-HK')
-            };
-
-            transactions.unshift(transaction);
-            saveTransactions();
-            loadTransactions();
-            updateStats();
-            clearForm();
-
-            // Success feedback with haptic
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate(100);
-            }
-            alert('記錄已成功新增！');
-        }
-
-        // Clear form
-        function clearForm() {
-            document.getElementById('amountInput').value = '';
-            document.getElementById('descriptionInput').value = '';
-        }
-
-        // Save to localStorage
-        function saveTransactions() {
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-        }
-
-        // Load transactions
-        function loadTransactions() {
-            const container = document.getElementById('transactionsList');
-            
-            if (transactions.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size: 48px;">📝</div>
-                        <p>暫無記錄</p>
-                        <p style="font-size: 14px;">新增第一筆家務記錄吧！</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = transactions.map(transaction => `
-                <div class="transaction-item">
-                    <div class="transaction-info">
-                        <h4>${getCategoryEmoji(transaction.category)} ${transaction.category}</h4>
-                        <p><strong>${transaction.person}</strong> - $${transaction.amount.toFixed(2)}</p>
-                        <p>${transaction.description || '無描述'}</p>
-                        <p style="font-size: 12px; color: #999;">${transaction.timestamp}</p>
-                    </div>
-                    <div>
-                        <div class="transaction-amount">$${transaction.amount.toFixed(2)}</div>
-                        <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">刪除</button>
+        // 🔐 溫馨登入系統
+        function showGoogleLogin() {
+            const loginHtml = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                           background: linear-gradient(135deg, rgba(255,248,225,0.95), rgba(255,243,224,0.95)); 
+                           z-index: 10000; display: flex; justify-content: center; align-items: center;
+                           backdrop-filter: blur(10px); font-family: 'Seto', serif;">
+                    <div style="background: rgba(255,253,236,0.95); padding: 50px; border-radius: 25px; 
+                               box-shadow: 0 20px 60px rgba(205,180,119,0.3); text-align: center; 
+                               max-width: 450px; width: 90%; backdrop-filter: blur(15px);
+                               border: 1px solid rgba(255,245,157,0.4);">
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="margin: 0; color: #6D4C41; font-size: 2.2em; font-weight: 700;
+                                      background: linear-gradient(45deg, #D4AC0D, #F39C12);
+                                      -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                🏮 進入道場
+                            </h2>
+                        </div>
+                        
+                        <p style="color: #A9790B; margin-bottom: 35px; font-size: 1.1em; font-weight: 500;">
+                            選擇你的修行者身份
+                        </p>
+                        
+                        <div onclick="selectUser('Jeffrey')" 
+                             style="display: flex; align-items: center; padding: 20px; 
+                                   border: 2px solid rgba(248,196,113,0.4); border-radius: 20px; margin-bottom: 15px; 
+                                   cursor: pointer; transition: all 0.3s ease; background: rgba(255,251,235,0.8);"
+                             onmouseover="this.style.borderColor='rgba(229,177,58,0.6)'; this.style.background='rgba(255,251,235,1)'; this.style.transform='translateY(-2px)'" 
+                             onmouseout="this.style.borderColor='rgba(248,196,113,0.4)'; this.style.background='rgba(255,251,235,0.8)'; this.style.transform='translateY(0)'">
+                            <div style="width: 55px; height: 55px; background: linear-gradient(45deg, #81C784, #66BB6A); 
+                                       border-radius: 50%; display: flex; align-items: center; 
+                                       justify-content: center; color: white; font-weight: bold; 
+                                       margin-right: 20px; font-size: 24px;">
+                                J
+                            </div>
+                            <div style="text-align: left; flex: 1;">
+                                <div style="font-weight: 600; font-size: 1.2em; color: #6D4C41;">Jeffrey</div>
+                                <div style="font-size: 0.95em; color: #A9790B; margin-top: 3px;">修行者・初段</div>
+                            </div>
+                        </div>
+                        
+                        <div onclick="selectUser('Kiki')" 
+                             style="display: flex; align-items: center; padding: 20px; 
+                                   border: 2px solid rgba(248,196,113,0.4); border-radius: 20px; margin-bottom: 25px; 
+                                   cursor: pointer; transition: all 0.3s ease; background: rgba(255,251,235,0.8);"
+                             onmouseover="this.style.borderColor='rgba(229,177,58,0.6)'; this.style.background='rgba(255,251,235,1)'; this.style.transform='translateY(-2px)'" 
+                             onmouseout="this.style.borderColor='rgba(248,196,113,0.4)'; this.style.background='rgba(255,251,235,0.8)'; this.style.transform='translateY(0)'">
+                            <div style="width: 55px; height: 55px; background: linear-gradient(45deg, #F7DC6F, #F4D03F); 
+                                       border-radius: 50%; display: flex; align-items: center; 
+                                       justify-content: center; color: #7D6608; font-weight: bold; 
+                                       margin-right: 20px; font-size: 24px;">
+                                K
+                            </div>
+                            <div style="text-align: left; flex: 1;">
+                                <div style="font-weight: 600; font-size: 1.2em; color: #6D4C41;">Kiki</div>
+                                <div style="font-size: 0.95em; color: #A9790B; margin-top: 3px;">修行者・初段</div>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 20px; background: rgba(255,248,225,0.8); border-radius: 15px; 
+                                   border-left: 4px solid #F7DC6F;">
+                            <div style="font-size: 0.95em; color: #A9790B; display: flex; align-items: center; font-weight: 500;">
+                                <span style="margin-right: 10px;">🏮</span>
+                                進入後所有修行記錄將同步至雲端道場
+                            </div>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            document.body.insertAdjacentHTML('beforeend', loginHtml);
         }
 
-        // Get category emoji
-        function getCategoryEmoji(category) {
-            const emojis = {
-                '食物': '🍚',
-                '交通': '🚌',
-                '日用品': '🧴',
-                '醫療': '💊',
-                '娛樂': '🎮',
-                '其他': '📦'
-            };
-            return emojis[category] || '📦';
-        }
-
-        // Delete transaction
-        function deleteTransaction(id) {
-            if (confirm('確定要刪除這筆記錄嗎？')) {
-                transactions = transactions.filter(t => t.id !== id);
-                saveTransactions();
-                loadTransactions();
-                updateStats();
+        // 🔑 用戶選擇函數
+        async function selectUser(user) {
+            const loginDiv = document.querySelector('div[style*="position: fixed"]');
+            if (loginDiv) loginDiv.remove();
+            
+            currentUser = user;
+            localStorage.setItem('currentUser', user);
+            
+            showLoading('正在連接道場...');
+            
+            try {
+                await testConnection();
+                await loadFromCloud();
+                updateUI();
+                hideLoading();
+                
+                document.getElementById('logoutBtn').style.display = 'block';
+                
+                showSuccess(`🏮 ${user} 已成功進入道場！`);
+                
+            } catch (error) {
+                hideLoading();
+                showError('道場連接失敗: ' + error.message);
+                console.error('Login error:', error);
             }
         }
 
-        // Update statistics
-        function updateStats() {
-            const total = transactions.reduce((sum, t) => sum + t.amount, 0);
-            const totalByPerson = {};
-            
-            people.forEach(person => {
-                totalByPerson[person] = transactions
-                    .filter(t => t.person === person)
-                    .reduce((sum, t) => sum + t.amount, 0);
+        // 🧪 測試連接
+        async function testConnection() {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'test' })
             });
 
-            document.getElementById('totalBalance').textContent = `$${total.toFixed(2)}`;
-            document.getElementById('totalIncome').textContent = `$${total.toFixed(2)}`;
-            document.getElementById('totalExpense').textContent = `${transactions.length} 筆`;
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || '道場連接測試失敗');
+            }
+            
+            console.log('✅ 道場連接成功:', data);
+            updateSyncStatus('🏮 道場已連接');
         }
 
-        // Open settlement modal
-        function openSettlement() {
-            const modal = document.getElementById('settlementModal');
-            const content = document.getElementById('settlementContent');
-            
-            if (transactions.length === 0) {
-                content.innerHTML = `
-                    <div class="empty-state">
-                        <p>暫無記錄可結算</p>
-                    </div>
-                `;
-            } else {
-                const totalByPerson = {};
-                people.forEach(person => {
-                    totalByPerson[person] = transactions
-                        .filter(t => t.person === person)
-                        .reduce((sum, t) => sum + t.amount, 0);
+        // ☁️ 雲端資料載入
+        async function loadFromCloud() {
+            try {
+                updateSyncStatus('📥 載入修行記錄...');
+                
+                // 載入任務
+                const tasksResponse = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: 'read', sheetName: 'Tasks'})
+                });
+                const tasksData = await tasksResponse.json();
+                
+                if (tasksData.success && tasksData.data && tasksData.data.length > 1) {
+                    tasks = tasksData.data.slice(1).map(row => ({
+                        id: row[0] || generateId(),
+                        name: row[1] || '',
+                        points: parseFloat(row[2]) || 0
+                    }));
+                } else {
+                    tasks = getDefaultTasks();
+                }
+
+                // 載入完成記錄
+                const completionsResponse = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: 'read', sheetName: 'Completions'})
+                });
+                const completionsData = await completionsResponse.json();
+                
+                if (completionsData.success && completionsData.data && completionsData.data.length > 1) {
+                    completions = completionsData.data.slice(1).map(row => ({
+                        id: row[0] || generateId(),
+                        taskId: row[1] || '',
+                        completedBy: row[2] || '',
+                        completedAt: row[3] || new Date().toISOString(),
+                        points: parseFloat(row[4]) || 0
+                    }));
+                } else {
+                    completions = [];
+                }
+
+                // 載入還款記錄
+                const paymentsResponse = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: 'read', sheetName: 'Payments'})
+                });
+                const paymentsData = await paymentsResponse.json();
+                
+                if (paymentsData.success && paymentsData.data && paymentsData.data.length > 1) {
+                    payments = paymentsData.data.slice(1).map(row => ({
+                        id: row[0] || generateId(),
+                        from: row[1] || '',
+                        to: row[2] || '',
+                        amount: parseFloat(row[3]) || 0,
+                        date: row[4] || new Date().toISOString(),
+                        reason: row[5] || ''
+                    }));
+                } else {
+                    payments = [];
+                }
+
+                updateSyncStatus('🏮 記錄載入完成');
+                console.log('✅ 道場資料載入成功');
+
+            } catch (error) {
+                console.error('載入道場資料失敗:', error);
+                updateSyncStatus('❌ 載入失敗');
+                loadLocalData();
+                showError('無法載入雲端資料，已切換到本地模式');
+            }
+        }
+
+        // ☁️ 儲存到雲端
+        async function saveToCloud() {
+            if (!currentUser) return;
+
+            try {
+                updateSyncStatus('📤 同步修行記錄...');
+
+                // 儲存任務
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'write',
+                        sheetName: 'Tasks',
+                        values: [
+                            ['ID', '修行項目', '獎金'],
+                            ...tasks.map(task => [task.id, task.name, task.points])
+                        ]
+                    })
                 });
 
-                const total = Object.values(totalByPerson).reduce((sum, amount) => sum + amount, 0);
-                const average = total / people.length;
+                // 儲存完成記錄
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'write',
+                        sheetName: 'Completions',
+                        values: [
+                            ['ID', '任務ID', '完成者', '完成時間', '獲得金額'],
+                            ...completions.map(comp => [comp.id, comp.taskId, comp.completedBy, comp.completedAt, comp.points])
+                        ]
+                    })
+                });
 
-                content.innerHTML = `
-                    <div class="stats-grid" style="grid-template-columns: 1fr;">
-                        ${people.map(person => `
-                            <div class="stat-card">
-                                <div class="stat-amount" style="color: ${totalByPerson[person] >= average ? '#28a745' : '#dc3545'}">
-                                    $${totalByPerson[person].toFixed(2)}
-                                </div>
-                                <div class="stat-label">${person}</div>
-                                <div style="font-size: 12px; color: #6c757d; margin-top: 5px;">
-                                    ${totalByPerson[person] >= average ? '多付' : '少付'} $${Math.abs(totalByPerson[person] - average).toFixed(2)}
-                                </div>
+                // 儲存還款記錄
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'write',
+                        sheetName: 'Payments',
+                        values: [
+                            ['ID', '還款人', '收款人', '金額', '日期', '備註'],
+                            ...payments.map(payment => [payment.id, payment.from, payment.to, payment.amount, payment.date, payment.reason])
+                        ]
+                    })
+                });
+
+                updateSyncStatus('🏮 同步完成');
+                console.log('✅ 道場同步成功');
+
+            } catch (error) {
+                console.error('儲存到道場失敗:', error);
+                updateSyncStatus('❌ 同步失敗');
+                saveLocalData();
+            }
+        }
+
+        // 💾 本地資料處理
+        function loadLocalData() {
+            tasks = JSON.parse(localStorage.getItem('tasks')) || getDefaultTasks();
+            completions = JSON.parse(localStorage.getItem('completions')) || [];
+            payments = JSON.parse(localStorage.getItem('payments')) || [];
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('completions', JSON.stringify(completions));
+            localStorage.setItem('payments', JSON.stringify(payments));
+        }
+
+        // 🏠 預設任務
+        function getDefaultTasks() {
+            return [
+                { id: '1', name: '洗碗修行', points: 5.0 },
+                { id: '2', name: '倒垃圾冥想', points: 3.0 },
+                { id: '3', name: '掃地禪修', points: 8.0 },
+                { id: '4', name: '洗衣靜心', points: 12.0 },
+                { id: '5', name: '整理空間', points: 15.0 }
+            ];
+        }
+
+        // 🔧 工具函數
+        function generateId() {
+            return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+        }
+
+        function formatDateTime(dateTime) {
+            const date = new Date(dateTime);
+            return date.toLocaleString('zh-HK', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 🎯 核心功能函數
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // 更新債務顯示
+            if (tabName === 'payment') {
+                updateDebtDisplay();
+            }
+        }
+
+        function addTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const points = parseFloat(document.getElementById('taskPoints').value);
+
+            if (!name) {
+                showError('請輸入修行項目名稱');
+                return;
+            }
+
+            if (!points || points <= 0) {
+                showError('請輸入有效的獎金金額');
+                return;
+            }
+
+            const task = {
+                id: generateId(),
+                name,
+                points
+            };
+
+            tasks.push(task);
+            
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskPoints').value = '5.0';
+            
+            updateTaskList();
+            saveToCloud();
+            showSuccess('修行項目新增成功！');
+        }
+
+        function completeTask(taskId, completedBy) {
+            if (!currentUser) {
+                showError('請先進入道場');
+                return;
+            }
+
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) {
+                showError('找不到該修行項目');
+                return;
+            }
+
+            // 允許重複完成！不檢查是否已完成
+            const completion = {
+                id: generateId(),
+                taskId: taskId,
+                completedBy: completedBy,
+                completedAt: new Date().toISOString(),
+                points: task.points
+            };
+
+            completions.push(completion);
+            
+            updateTaskList();
+            updateBalance();
+            updateHistory();
+            updateTodaySummary();
+            updateDebtDisplay(); // 完成任務後也要更新欠款顯示
+            saveToCloud();
+            
+            showSuccess(`${completedBy} 完成「${task.name}」，獲得 $${task.points}！✨`);
+        }
+
+        // ✨ 全新轉賬函數
+        function setTransfer(from, to) {
+            // 清除所有快速按鈕的 active 狀態
+            document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // 設置當前按鈕為 active
+            event.target.classList.add('active');
+            
+            // 設定選擇器的值
+            document.getElementById('paymentFrom').value = from;
+            document.getElementById('paymentTo').value = to;
+        }
+
+        function recordPayment() {
+            const from = document.getElementById('paymentFrom').value;
+            const to = document.getElementById('paymentTo').value;
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+
+            // 驗證輸入
+            if (!from || !to) {
+                showError('請選擇轉賬人和收款人');
+                return;
+            }
+
+            if (from === to) {
+                showError('轉賬人和收款人不能是同一人');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                showError('請輸入有效轉賬金額');
+                return;
+            }
+
+            // 創建轉賬記錄
+            const payment = {
+                id: generateId(),
+                from: from,
+                to: to,
+                amount: amount,
+                date: new Date().toISOString(),
+                reason: '修行金結算轉賬'
+            };
+
+            payments.push(payment);
+            
+            // 清空表單
+            document.getElementById('paymentFrom').value = '';
+            document.getElementById('paymentTo').value = '';
+            document.getElementById('paymentAmount').value = '';
+            
+            // 清除快速按鈕的 active 狀態
+            document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // 更新界面
+            updateBalance();
+            updateHistory();
+            updateDebtDisplay();
+            saveToCloud();
+            
+            showSuccess(`✅ 記錄轉賬：${from} → ${to} $${amount.toFixed(2)}`);
+        }
+
+        // 🔄 界面更新函數
+        function updateUI() {
+            if (!currentUser) return;
+            
+            updateTaskList();
+            updateBalance();
+            updateHistory();
+            updateDebtDisplay();
+            updateTodaySummary();
+        }
+
+        // 更新今日修行總結（支持重複完成）
+        function updateTodaySummary() {
+            const today = new Date().toDateString();
+            
+            // Jeffrey 今日完成的任務（包含重複）
+            const jeffreyTodayCompletions = completions.filter(c => 
+                c.completedBy === 'Jeffrey' && 
+                new Date(c.completedAt).toDateString() === today
+            );
+
+            // Kiki 今日完成的任務（包含重複）
+            const kikiTodayCompletions = completions.filter(c => 
+                c.completedBy === 'Kiki' && 
+                new Date(c.completedAt).toDateString() === today
+            );
+
+            // 更新 Jeffrey
+            const jeffreyTasksEl = document.getElementById('jeffreyTodayTasks');
+            const jeffreyCountEl = document.getElementById('jeffreyTaskCount');
+            const jeffreyEarnedEl = document.getElementById('jeffreyEarnedToday');
+            
+            if (jeffreyTodayCompletions.length === 0) {
+                jeffreyTasksEl.textContent = '今日還未開始修行';
+                jeffreyCountEl.textContent = '0項任務';
+                jeffreyEarnedEl.textContent = '$0.00';
+            } else {
+                // 統計每個任務完成的次數
+                const taskCounts = {};
+                jeffreyTodayCompletions.forEach(c => {
+                    const task = tasks.find(t => t.id === c.taskId);
+                    const taskName = task ? task.name : '未知任務';
+                    taskCounts[taskName] = (taskCounts[taskName] || 0) + 1;
+                });
+
+                const taskSummary = Object.entries(taskCounts).map(([name, count]) => 
+                    count > 1 ? `${name} x${count}` : name
+                ).join('<br>');
+                
+                jeffreyTasksEl.innerHTML = taskSummary;
+                jeffreyCountEl.textContent = `${jeffreyTodayCompletions.length}項任務`;
+                
+                const todayEarned = jeffreyTodayCompletions.reduce((sum, c) => sum + c.points, 0);
+                jeffreyEarnedEl.textContent = `$${todayEarned.toFixed(2)}`;
+            }
+
+            // 更新 Kiki
+            const kikiTasksEl = document.getElementById('kikiTodayTasks');
+            const kikiCountEl = document.getElementById('kikiTaskCount');
+            const kikiEarnedEl = document.getElementById('kikiEarnedToday');
+            
+            if (kikiTodayCompletions.length === 0) {
+                kikiTasksEl.textContent = '今日還未開始修行';
+                kikiCountEl.textContent = '0項任務';
+                kikiEarnedEl.textContent = '$0.00';
+            } else {
+                // 統計每個任務完成的次數
+                const taskCounts = {};
+                kikiTodayCompletions.forEach(c => {
+                    const task = tasks.find(t => t.id === c.taskId);
+                    const taskName = task ? task.name : '未知任務';
+                    taskCounts[taskName] = (taskCounts[taskName] || 0) + 1;
+                });
+
+                const taskSummary = Object.entries(taskCounts).map(([name, count]) => 
+                    count > 1 ? `${name} x${count}` : name
+                ).join('<br>');
+                
+                kikiTasksEl.innerHTML = taskSummary;
+                kikiCountEl.textContent = `${kikiTodayCompletions.length}項任務`;
+                
+                const todayEarned = kikiTodayCompletions.reduce((sum, c) => sum + c.points, 0);
+                kikiEarnedEl.textContent = `$${todayEarned.toFixed(2)}`;
+            }
+        }
+
+        function updateTaskList() {
+            const taskList = document.getElementById('taskList');
+            const today = new Date().toDateString();
+
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<p style="text-align: center; color: #A9790B;">暫無修行項目</p>';
+                return;
+            }
+
+            taskList.innerHTML = tasks.map(task => {
+                // 計算今日完成次數（支持重複）
+                const jeffreyTodayCount = completions.filter(c => 
+                    c.taskId === task.id && 
+                    c.completedBy === 'Jeffrey' && 
+                    new Date(c.completedAt).toDateString() === today
+                ).length;
+
+                const kikiTodayCount = completions.filter(c => 
+                    c.taskId === task.id && 
+                    c.completedBy === 'Kiki' && 
+                    new Date(c.completedAt).toDateString() === today
+                ).length;
+
+                return `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-completion-status">
+                                ${jeffreyTodayCount > 0 ? 
+                                    `<span class="completion-count">Jeffrey: ${jeffreyTodayCount}次</span>` : 
+                                    '<span style="color: #E65100;">⭕ Jeffrey: 未完成</span>'
+                                }
+                                ${kikiTodayCount > 0 ? 
+                                    `<span class="completion-count">Kiki: ${kikiTodayCount}次</span>` : 
+                                    '<span style="color: #E65100;">⭕ Kiki: 未完成</span>'
+                                }
                             </div>
-                        `).join('')}
-                    </div>
-                    
-                    <div class="settlement-result">
-                        <div class="settlement-amount">總支出: $${total.toFixed(2)}</div>
-                        <div>平均每人: $${average.toFixed(2)}</div>
-                        <div style="margin-top: 15px; font-size: 14px;">
-                            <strong>結算建議:</strong><br>
-                            ${people.map(person => {
-                                const diff = totalByPerson[person] - average;
-                                if (Math.abs(diff) < 0.01) return `${person}: 已平衡 ✅`;
-                                return diff > 0 
-                                    ? `${person}: 應收回 $${diff.toFixed(2)} 💰`
-                                    : `${person}: 應付出 $${Math.abs(diff).toFixed(2)} 💳`;
-                            }).join('<br>')}
+                        </div>
+                        <div class="money-badge">$${task.points}</div>
+                        <div class="complete-buttons">
+                            <button class="complete-btn" onclick="completeTask('${task.id}', 'Jeffrey')">
+                                Jeffrey
+                            </button>
+                            <button class="complete-btn" onclick="completeTask('${task.id}', 'Kiki')">
+                                Kiki
+                            </button>
                         </div>
                     </div>
                 `;
+            }).join('');
+        }
+
+        function updateBalance() {
+            const jeffreyEarned = completions
+                .filter(c => c.completedBy === 'Jeffrey')
+                .reduce((sum, c) => sum + c.points, 0);
+            
+            const kikiEarned = completions
+                .filter(c => c.completedBy === 'Kiki')
+                .reduce((sum, c) => sum + c.points, 0);
+
+            document.getElementById('jeffreyBalance').textContent = `$${jeffreyEarned.toFixed(2)}`;
+            document.getElementById('kikiBalance').textContent = `$${kikiEarned.toFixed(2)}`;
+        }
+
+        // ✨ 改進版欠債顯示函數
+        function updateDebtDisplay() {
+            // 計算總賺取金額
+            const jeffreyEarned = completions
+                .filter(c => c.completedBy === 'Jeffrey')
+                .reduce((sum, c) => sum + c.points, 0);
+            
+            const kikiEarned = completions
+                .filter(c => c.completedBy === 'Kiki')
+                .reduce((sum, c) => sum + c.points, 0);
+
+            // 計算淨轉賬金額（Jeffrey收到的 - Jeffrey支出的）
+            const jeffreyReceived = payments
+                .filter(p => p.to === 'Jeffrey')
+                .reduce((sum, p) => sum + p.amount, 0);
+            
+            const jeffreyPaid = payments
+                .filter(p => p.from === 'Jeffrey')
+                .reduce((sum, p) => sum + p.amount, 0);
+
+            const kikiReceived = payments
+                .filter(p => p.to === 'Kiki')
+                .reduce((sum, p) => sum + p.amount, 0);
+            
+            const kikiPaid = payments
+                .filter(p => p.from === 'Kiki')
+                .reduce((sum, p) => sum + p.amount, 0);
+
+            // 計算實際餘額（賺取的 + 收到的 - 支付的）
+            const jeffreyActualBalance = jeffreyEarned + jeffreyReceived - jeffreyPaid;
+            const kikiActualBalance = kikiEarned + kikiReceived - kikiPaid;
+
+            // 計算欠債差額
+            const difference = jeffreyActualBalance - kikiActualBalance;
+            
+            const debtDisplay = document.getElementById('debtDisplay');
+            
+            if (Math.abs(difference) < 0.01) {
+                debtDisplay.innerHTML = '🎉 完美平衡！沒有欠款';
+                debtDisplay.className = 'debt-display debt-positive';
+            } else if (difference > 0) {
+                debtDisplay.innerHTML = `💰 Kiki 欠 Jeffrey <strong>$${difference.toFixed(2)}</strong>`;
+                debtDisplay.className = 'debt-display debt-negative';
+            } else {
+                debtDisplay.innerHTML = `💰 Jeffrey 欠 Kiki <strong>$${Math.abs(difference).toFixed(2)}</strong>`;
+                debtDisplay.className = 'debt-display debt-negative';
+            }
+        }
+
+        function updateHistory() {
+            // 更新完成記錄
+            const completionHistory = document.getElementById('completionHistory');
+            const recentCompletions = completions
+                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+                .slice(0, 10);
+
+            if (recentCompletions.length === 0) {
+                completionHistory.innerHTML = '<p style="text-align: center; color: #A9790B;">暫無修行記錄</p>';
+            } else {
+                completionHistory.innerHTML = recentCompletions.map(completion => {
+                    const task = tasks.find(t => t.id === completion.taskId);
+                    const taskName = task ? task.name : '已刪除的修行項目';
+                    
+                    return `
+                        <div class="history-item">
+                            <div class="history-info">
+                                <strong>${completion.completedBy}</strong> 完成了 「${taskName}」
+                                <br><small>獲得 $${completion.points}</small>
+                            </div>
+                            <div class="history-time">${formatDateTime(completion.completedAt)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 更新轉賬記錄
+            const paymentHistory = document.getElementById('paymentHistory');
+            const recentPayments = payments
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 10);
+
+            if (recentPayments.length === 0) {
+                paymentHistory.innerHTML = '<p style="text-align: center; color: #A9790B;">暫無轉賬記錄</p>';
+            } else {
+                paymentHistory.innerHTML = recentPayments.map(payment => `
+                    <div class="history-item">
+                        <div class="history-info">
+                            <strong>${payment.from} → ${payment.to} $${payment.amount.toFixed(2)}</strong>
+                            ${payment.reason ? `<br><small>${payment.reason}</small>` : ''}
+                        </div>
+                        <div class="history-time">${formatDateTime(payment.date)}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 🚨 系統函數
+        function showLoading(message = '載入中...') {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingScreen').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        function showError(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-error';
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function updateSyncStatus(status) {
+            document.getElementById('syncStatus').textContent = status;
+        }
+
+        function logout() {
+            if (confirm('確定要離開道場嗎？')) {
+                localStorage.removeItem('currentUser');
+                currentUser = null;
+                document.getElementById('logoutBtn').style.display = 'none';
+                showGoogleLogin();
+            }
+        }
+
+        function resetData() {
+            if (!confirm('⚠️ 確定要重置道場所有資料嗎？此操作無法復原！')) {
+                return;
             }
             
-            modal.style.display = 'flex';
-        }
-
-        // Close settlement modal
-        function closeSettlement() {
-            document.getElementById('settlementModal').style.display = 'none';
-        }
-
-        // Clear all data
-        function clearAllData() {
-            if (confirm('確定要清空所有記錄嗎？此操作無法恢復！')) {
-                transactions = [];
-                saveTransactions();
-                loadTransactions();
-                updateStats();
-                closeSettlement();
-                alert('所有記錄已清空！');
+            if (!confirm('🚨 最後確認：這將刪除所有修行項目、完成記錄和轉賬記錄！')) {
+                return;
             }
+            
+            tasks = [];
+            completions = [];
+            payments = [];
+            
+            updateUI();
+            saveToCloud();
+            showSuccess('道場資料已重置');
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('settlementModal');
-            if (event.target === modal) {
-                closeSettlement();
+        // 🚀 應用初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏮 亂道場の修行列表啟動中...');
+            
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                console.log('發現修行者:', savedUser);
+                currentUser = savedUser;
+                
+                document.getElementById('logoutBtn').style.display = 'block';
+                
+                loadFromCloud().then(() => {
+                    updateUI();
+                    console.log('✅ 道場初始化完成');
+                }).catch(error => {
+                    console.error('道場初始化錯誤:', error);
+                    loadLocalData();
+                    updateUI();
+                    showError('雲端道場連接失敗，已切換到本地模式');
+                });
+            } else {
+                console.log('新修行者，顯示進入道場界面');
+                showGoogleLogin();
             }
-        }
+        });
+        
+        // 🔄 定期同步道場
+        setInterval(async () => {
+            if (currentUser) {
+                try {
+                    await testConnection();
+                } catch (error) {
+                    updateSyncStatus('🔄 重新連接道場中');
+                    console.log('道場定期檢查失敗:', error);
+                }
+            }
+        }, 30000);
     </script>
 </body>
 </html>
