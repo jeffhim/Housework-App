@@ -4,10 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🏮 亂道場の修行列表</title>
-    <link href="https://fonts.googleapis.com/css2?family=Seto:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Seto:wght@400;600&display=swap');
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, serverTimestamp, query, orderBy, limit, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
+        window.firebaseModules = {
+            initializeApp,
+            getAuth,
+            signInWithPopup,
+            GoogleAuthProvider,
+            onAuthStateChanged,
+            signOut,
+            getFirestore,
+            doc,
+            setDoc,
+            getDoc,
+            collection,
+            onSnapshot,
+            serverTimestamp,
+            query,
+            orderBy,
+            limit,
+            deleteDoc
+        };
+    </script>
+    
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -15,7 +41,7 @@
         }
         
         body { 
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', '瀨戶字體', 'Microsoft JhengHei', serif;
             background: linear-gradient(135deg, #FFF8E1 0%, #FFF3E0 30%, #FCF3CF 70%, #F8F4E6 100%);
             min-height: 100vh;
             color: #6D4C41;
@@ -23,7 +49,6 @@
             position: relative;
         }
 
-        /* 溫和背景裝飾 */
         body::before {
             content: '';
             position: fixed;
@@ -67,9 +92,6 @@
             background-clip: text;
             font-weight: 600;
             text-shadow: 1px 1px 3px rgba(212,172,13,0.2);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .header p {
@@ -77,6 +99,29 @@
             color: #E67E22;
             font-weight: 600;
             text-shadow: 1px 1px 2px rgba(230,126,34,0.15);
+        }
+
+        .user-info {
+            background: rgba(255,251,235,0.8);
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #6D4C41;
         }
         
         .status-bar {
@@ -105,7 +150,6 @@
             box-shadow: 0 8px 30px rgba(205,180,119,0.18);
         }
 
-        /* 今日修行總結卡片 */
         .today-summary {
             background: linear-gradient(135deg, rgba(255,249,196,0.9) 0%, rgba(255,245,157,0.9) 100%);
             border-radius: 20px;
@@ -164,7 +208,6 @@
             margin-top: 8px;
         }
         
-        /* 底部分頁列表 */
         .tabs {
             position: fixed;
             bottom: 0;
@@ -257,7 +300,7 @@
             border: 1px solid rgba(76,175,80,0.2);
         }
         
-        .complete-buttons {
+        .task-actions {
             display: flex;
             gap: 10px;
             align-items: center;
@@ -274,13 +317,32 @@
             transition: all 0.3s ease;
             font-size: 0.9em;
             min-width: 80px;
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', serif;
         }
         
         .complete-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(129,199,132,0.4);
             background: linear-gradient(45deg, #66BB6A, #4CAF50);
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, #E74C3C, #C0392B);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.8em;
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231,76,60,0.4);
+            background: linear-gradient(45deg, #C0392B, #A93226);
         }
         
         .money-badge {
@@ -315,7 +377,7 @@
             font-size: 16px;
             transition: all 0.3s ease;
             background: rgba(255,255,255,0.9);
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', serif;
             color: #6D4C41;
         }
         
@@ -337,7 +399,7 @@
             transition: all 0.3s ease;
             width: 100%;
             margin-top: 15px;
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', serif;
         }
         
         .btn:hover {
@@ -361,6 +423,30 @@
         .btn-success:hover {
             background: linear-gradient(45deg, #66BB6A, #4CAF50);
             box-shadow: 0 8px 25px rgba(129,199,132,0.4);
+        }
+
+        .google-login-btn {
+            background: linear-gradient(45deg, #4285F4, #357AE8);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+            font-family: 'Noto Serif TC', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .google-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66,133,244,0.4);
         }
         
         .history-item {
@@ -448,7 +534,7 @@
             text-align: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', serif;
             color: #6D4C41;
         }
         
@@ -473,7 +559,7 @@
             border-radius: 12px;
             font-weight: 600;
             backdrop-filter: blur(10px);
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', serif;
         }
         
         .alert-success {
@@ -501,7 +587,7 @@
             font-weight: 600;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', serif;
         }
         
         .logout-btn:hover {
@@ -514,19 +600,21 @@
             position: fixed;
             bottom: 70px;
             right: 25px;
-            background: rgba(255,253,236,0.9);
-            padding: 10px 15px;
-            border-radius: 25px;
-            font-size: 0.9em;
-            box-shadow: 0 4px 15px rgba(205,180,119,0.15);
+            background: rgba(76,175,80,0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            box-shadow: 0 4px 15px rgba(76,175,80,0.3);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(247,220,111,0.3);
-            font-weight: 500;
-            font-family: 'Seto', serif;
-            color: #6D4C41;
+            font-weight: 600;
+            font-family: 'Noto Serif TC', serif;
         }
 
-        /* ✨ 改進版欠款處理區域 */
+        .sync-error {
+            background: rgba(244,67,54,0.9) !important;
+        }
+
         .debt-section {
             background: linear-gradient(135deg, rgba(255,245,238,0.9) 0%, rgba(255,248,225,0.9) 100%);
             border-radius: 15px;
@@ -607,7 +695,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
-            font-family: 'Seto', serif;
+            font-family: 'Noto Serif TC', serif;
             font-size: 0.95em;
         }
 
@@ -623,7 +711,71 @@
             color: #7D6608;
         }
 
-        /* 手機響應式優化 */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,248,225,0.95), rgba(255,243,224,0.95));
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        .login-card {
+            background: rgba(255,253,236,0.95);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(205,180,119,0.3);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,245,157,0.4);
+        }
+
+        .login-title {
+            margin: 0;
+            color: #6D4C41;
+            font-size: 2.2em;
+            font-weight: 700;
+            background: linear-gradient(45deg, #D4AC0D, #F39C12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+
+        .login-subtitle {
+            color: #A9790B;
+            margin-bottom: 35px;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .login-note {
+            padding: 20px;
+            background: rgba(255,248,225,0.8);
+            border-radius: 15px;
+            border-left: 4px solid #F7DC6F;
+            margin-top: 25px;
+        }
+
+        .login-note-text {
+            font-size: 0.95em;
+            color: #A9790B;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .login-note-text span {
+            margin-right: 10px;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.5em;
@@ -666,6 +818,11 @@
             .quick-btn {
                 min-width: auto;
             }
+
+            .task-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -684,45 +841,67 @@
     <button class="logout-btn" onclick="logout()" style="display: none;" id="logoutBtn">🚪 離開道場</button>
     
     <!-- 同步狀態 -->
-    <div class="sync-status" id="syncStatus">🏮 已連接道場</div>
+    <div class="sync-status" id="syncStatus">🔄 連接中...</div>
     
-    <div class="container">
+    <!-- 登入畫面 -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <h2 class="login-title">🏮 進入道場</h2>
+            <p class="login-subtitle">歡迎 子謙 和 小亂！</p>
+            
+            <button class="google-login-btn" onclick="signInWithGoogle()">
+                <span>🔐</span>
+                使用 Google 登入
+            </button>
+            
+            <div class="login-note">
+                <div class="login-note-text">
+                    <span>✅</span>
+                    已設置完成，可以開始使用！
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主應用內容 -->
+    <div class="container" id="mainContainer" style="display: none;">
         <div class="header">
             <h1>🏮 亂道場の修行列表</h1>
             <p id="welcomeMessage">嚟賺錢啦！</p>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像">
+                <span class="user-name" id="userName"></span>
+            </div>
         </div>
         
-        <!-- 狀態欄 -->
         <div class="status-bar" id="statusBar">
             <div class="balance-display">
                 <div class="balance-card">
-                    <div class="balance-amount" id="jeffreyBalance">$0</div>
-                    <div class="balance-label">Jeffrey の修行金</div>
+                    <div class="balance-amount" id="ziqianBalance">$0</div>
+                    <div class="balance-label">子謙の修行金</div>
                 </div>
                 <div class="balance-card">
-                    <div class="balance-amount" id="kikiBalance">$0</div>
-                    <div class="balance-label">Kiki の修行金</div>
+                    <div class="balance-amount" id="xiaoluanBalance">$0</div>
+                    <div class="balance-label">小亂の修行金</div>
                 </div>
             </div>
         </div>
         
-        <!-- 任務清單 -->
         <div id="tasks" class="tab-content active">
-            <!-- 今日修行總結 -->
             <div class="today-summary">
                 <div class="summary-title">📊 今日修行總結</div>
                 <div class="summary-content">
                     <div class="person-summary">
-                        <div class="person-name">Jeffrey</div>
-                        <div class="completed-tasks" id="jeffreyTodayTasks">今日還未開始修行</div>
-                        <div class="task-count" id="jeffreyTaskCount">0項任務</div>
-                        <div class="earned-today" id="jeffreyEarnedToday">$0.00</div>
+                        <div class="person-name">子謙</div>
+                        <div class="completed-tasks" id="ziqianTodayTasks">今日還未開始修行</div>
+                        <div class="task-count" id="ziqianTaskCount">0項任務</div>
+                        <div class="earned-today" id="ziqianEarnedToday">$0.00</div>
                     </div>
                     <div class="person-summary">
-                        <div class="person-name">Kiki</div>
-                        <div class="completed-tasks" id="kikiTodayTasks">今日還未開始修行</div>
-                        <div class="task-count" id="kikiTaskCount">0項任務</div>
-                        <div class="earned-today" id="kikiEarnedToday">$0.00</div>
+                        <div class="person-name">小亂</div>
+                        <div class="completed-tasks" id="xiaoluanTodayTasks">今日還未開始修行</div>
+                        <div class="task-count" id="xiaoluanTaskCount">0項任務</div>
+                        <div class="earned-today" id="xiaoluanEarnedToday">$0.00</div>
                     </div>
                 </div>
             </div>
@@ -733,7 +912,6 @@
             </div>
         </div>
         
-        <!-- 新增任務 -->
         <div id="add-task" class="tab-content">
             <div class="card">
                 <h2>➕ 新增修行項目</h2>
@@ -749,42 +927,37 @@
             </div>
         </div>
         
-        <!-- ✨ 全新欠款結算系統 -->
         <div id="payment" class="tab-content">
             <div class="card">
                 <h2>💰 修行金結算</h2>
                 
-                <!-- 當前欠債顯示 -->
                 <div class="debt-section">
                     <div class="debt-display" id="debtDisplay">計算中...</div>
                 </div>
 
-                <!-- 轉賬記錄表單 -->
                 <div class="payment-form">
                     <div class="form-title">💸 記錄轉賬</div>
                     
-                    <!-- 快速選擇按鈕 -->
                     <div class="quick-actions">
-                        <div class="quick-btn" onclick="setTransfer('Jeffrey', 'Kiki')">Jeffrey → Kiki</div>
-                        <div class="quick-btn" onclick="setTransfer('Kiki', 'Jeffrey')">Kiki → Jeffrey</div>
+                        <div class="quick-btn" onclick="setTransfer('子謙', '小亂')">子謙 → 小亂</div>
+                        <div class="quick-btn" onclick="setTransfer('小亂', '子謙')">小亂 → 子謙</div>
                     </div>
 
-                    <!-- 詳細轉賬資訊 -->
                     <div class="transfer-inputs">
                         <div class="input-group">
                             <label for="paymentFrom">轉賬人</label>
                             <select id="paymentFrom">
                                 <option value="">選擇轉賬人</option>
-                                <option value="Jeffrey">Jeffrey</option>
-                                <option value="Kiki">Kiki</option>
+                                <option value="子謙">子謙</option>
+                                <option value="小亂">小亂</option>
                             </select>
                         </div>
                         <div class="input-group">
                             <label for="paymentTo">收款人</label>
                             <select id="paymentTo">
                                 <option value="">選擇收款人</option>
-                                <option value="Jeffrey">Jeffrey</option>
-                                <option value="Kiki">Kiki</option>
+                                <option value="子謙">子謙</option>
+                                <option value="小亂">小亂</option>
                             </select>
                         </div>
                         <div class="input-group amount-input">
@@ -798,7 +971,6 @@
             </div>
         </div>
         
-        <!-- 歷史記錄 -->
         <div id="history" class="tab-content">
             <div class="card">
                 <h2>📊 修行完成記錄</h2>
@@ -815,15 +987,13 @@
         </div>
     </div>
     
-    <!-- 底部分頁列表 -->
-    <div class="tabs">
+    <div class="tabs" style="display: none;" id="tabsContainer">
         <div class="tab active" onclick="switchTab('tasks')">📋 修行清單</div>
         <div class="tab" onclick="switchTab('add-task')">➕ 新增修行</div>
         <div class="tab" onclick="switchTab('payment')">💰 結算欠款</div>
         <div class="tab" onclick="switchTab('history')">📊 修行記錄</div>
     </div>
     
-    <!-- 載入畫面 -->
     <div class="loading" id="loadingScreen">
         <div class="loading-content">
             <div class="spinner"></div>
@@ -832,278 +1002,294 @@
     </div>
 
     <script>
-        // 🌐 Google Apps Script URL
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7oJWIsYibMDWt0Ozp6msVT89K5sO86yHwUl3lXyPQXvXR0b5MGSArqkE38sG75HalTQ/exec';
+        // 🔥 Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTBIi5ZSNG0Ow7DlyCkKcKXevPJJay3t8",
+            authDomain: "housework-app-4c138.firebaseapp.com",
+            projectId: "housework-app-4c138",
+            storageBucket: "housework-app-4c138.firebasestorage.app",
+            messagingSenderId: "61329794359",
+            appId: "1:61329794359:web:8706f20ba899909e86e6b2"
+        };
+
+        // 🔐 允許登入的帳戶（Email 保持不變，顯示名稱已更新）
+        const ALLOWED_EMAILS = [
+            'jeffhimcch@gmail.com',      // 子謙 的 Gmail
+            'dorothylaw0603@gmail.com'   // 小亂 的 Gmail
+        ];
         
         // 全域變數
+        let app, auth, db, provider;
         let currentUser = null;
         let tasks = [];
         let completions = [];
         let payments = [];
+        let unsubscribeFunctions = [];
 
-        // 🔐 溫馨登入系統
-        function showGoogleLogin() {
-            const loginHtml = `
-                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                           background: linear-gradient(135deg, rgba(255,248,225,0.95), rgba(255,243,224,0.95)); 
-                           z-index: 10000; display: flex; justify-content: center; align-items: center;
-                           backdrop-filter: blur(10px); font-family: 'Seto', serif;">
-                    <div style="background: rgba(255,253,236,0.95); padding: 50px; border-radius: 25px; 
-                               box-shadow: 0 20px 60px rgba(205,180,119,0.3); text-align: center; 
-                               max-width: 450px; width: 90%; backdrop-filter: blur(15px);
-                               border: 1px solid rgba(255,245,157,0.4);">
-                        
-                        <div style="margin-bottom: 30px;">
-                            <h2 style="margin: 0; color: #6D4C41; font-size: 2.2em; font-weight: 700;
-                                      background: linear-gradient(45deg, #D4AC0D, #F39C12);
-                                      -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                                🏮 進入道場
-                            </h2>
-                        </div>
-                        
-                        <p style="color: #A9790B; margin-bottom: 35px; font-size: 1.1em; font-weight: 500;">
-                            選擇你的修行者身份
-                        </p>
-                        
-                        <div onclick="selectUser('Jeffrey')" 
-                             style="display: flex; align-items: center; padding: 20px; 
-                                   border: 2px solid rgba(248,196,113,0.4); border-radius: 20px; margin-bottom: 15px; 
-                                   cursor: pointer; transition: all 0.3s ease; background: rgba(255,251,235,0.8);"
-                             onmouseover="this.style.borderColor='rgba(229,177,58,0.6)'; this.style.background='rgba(255,251,235,1)'; this.style.transform='translateY(-2px)'" 
-                             onmouseout="this.style.borderColor='rgba(248,196,113,0.4)'; this.style.background='rgba(255,251,235,0.8)'; this.style.transform='translateY(0)'">
-                            <div style="width: 55px; height: 55px; background: linear-gradient(45deg, #81C784, #66BB6A); 
-                                       border-radius: 50%; display: flex; align-items: center; 
-                                       justify-content: center; color: white; font-weight: bold; 
-                                       margin-right: 20px; font-size: 24px;">
-                                J
-                            </div>
-                            <div style="text-align: left; flex: 1;">
-                                <div style="font-weight: 600; font-size: 1.2em; color: #6D4C41;">Jeffrey</div>
-                                <div style="font-size: 0.95em; color: #A9790B; margin-top: 3px;">修行者・初段</div>
-                            </div>
-                        </div>
-                        
-                        <div onclick="selectUser('Kiki')" 
-                             style="display: flex; align-items: center; padding: 20px; 
-                                   border: 2px solid rgba(248,196,113,0.4); border-radius: 20px; margin-bottom: 25px; 
-                                   cursor: pointer; transition: all 0.3s ease; background: rgba(255,251,235,0.8);"
-                             onmouseover="this.style.borderColor='rgba(229,177,58,0.6)'; this.style.background='rgba(255,251,235,1)'; this.style.transform='translateY(-2px)'" 
-                             onmouseout="this.style.borderColor='rgba(248,196,113,0.4)'; this.style.background='rgba(255,251,235,0.8)'; this.style.transform='translateY(0)'">
-                            <div style="width: 55px; height: 55px; background: linear-gradient(45deg, #F7DC6F, #F4D03F); 
-                                       border-radius: 50%; display: flex; align-items: center; 
-                                       justify-content: center; color: #7D6608; font-weight: bold; 
-                                       margin-right: 20px; font-size: 24px;">
-                                K
-                            </div>
-                            <div style="text-align: left; flex: 1;">
-                                <div style="font-weight: 600; font-size: 1.2em; color: #6D4C41;">Kiki</div>
-                                <div style="font-size: 0.95em; color: #A9790B; margin-top: 3px;">修行者・初段</div>
-                            </div>
-                        </div>
-                        
-                        <div style="padding: 20px; background: rgba(255,248,225,0.8); border-radius: 15px; 
-                                   border-left: 4px solid #F7DC6F;">
-                            <div style="font-size: 0.95em; color: #A9790B; display: flex; align-items: center; font-weight: 500;">
-                                <span style="margin-right: 10px;">🏮</span>
-                                進入後所有修行記錄將同步至雲端道場
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', loginHtml);
-        }
-
-        // 🔑 用戶選擇函數
-        async function selectUser(user) {
-            const loginDiv = document.querySelector('div[style*="position: fixed"]');
-            if (loginDiv) loginDiv.remove();
-            
-            currentUser = user;
-            localStorage.setItem('currentUser', user);
-            
-            showLoading('正在連接道場...');
-            
+        // 🚀 Firebase 初始化
+        async function initializeFirebase() {
             try {
-                await testConnection();
-                await loadFromCloud();
-                updateUI();
-                hideLoading();
+                const {
+                    initializeApp,
+                    getAuth,
+                    signInWithPopup,
+                    GoogleAuthProvider,
+                    onAuthStateChanged,
+                    signOut,
+                    getFirestore,
+                    doc,
+                    setDoc,
+                    getDoc,
+                    collection,
+                    onSnapshot,
+                    serverTimestamp,
+                    query,
+                    orderBy,
+                    limit,
+                    deleteDoc
+                } = window.firebaseModules;
+
+                // 初始化 Firebase
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                provider = new GoogleAuthProvider();
+
+                console.log('✅ Firebase 初始化成功');
                 
-                document.getElementById('logoutBtn').style.display = 'block';
-                
-                showSuccess(`🏮 ${user} 已成功進入道場！`);
+                // 監聽登入狀態
+                onAuthStateChanged(auth, async (user) => {
+                    if (user && ALLOWED_EMAILS.includes(user.email)) {
+                        console.log('✅ 用戶已登入:', user.email);
+                        currentUser = user;
+                        await showMainApp();
+                        await loadDataFromFirebase();
+                        updateSyncStatus('🔄 同步中...');
+                        setupRealtimeListeners();
+                    } else if (user && !ALLOWED_EMAILS.includes(user.email)) {
+                        console.log('❌ 未授權的帳戶:', user.email);
+                        showError('此帳戶未獲得道場授權');
+                        await signOut(auth);
+                        showLoginScreen();
+                    } else {
+                        console.log('👤 用戶未登入');
+                        showLoginScreen();
+                    }
+                });
+
+                updateSyncStatus('✅ Firebase 連線');
                 
             } catch (error) {
-                hideLoading();
-                showError('道場連接失敗: ' + error.message);
-                console.error('Login error:', error);
+                console.error('❌ Firebase 初始化失敗:', error);
+                updateSyncStatus('❌ 連線失敗');
+                showError('Firebase 連線失敗: ' + error.message);
             }
         }
 
-        // 🧪 測試連接
-        async function testConnection() {
-            const response = await fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'test' })
-            });
-
-            const data = await response.json();
-            
-            if (!data.success) {
-                throw new Error(data.error || '道場連接測試失敗');
-            }
-            
-            console.log('✅ 道場連接成功:', data);
-            updateSyncStatus('🏮 道場已連接');
-        }
-
-        // ☁️ 雲端資料載入
-        async function loadFromCloud() {
+        // 🔐 Google 登入
+        async function signInWithGoogle() {
             try {
-                updateSyncStatus('📥 載入修行記錄...');
+                showLoading('正在登入...');
+                const { signInWithPopup } = window.firebaseModules;
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                if (!ALLOWED_EMAILS.includes(user.email)) {
+                    await auth.signOut();
+                    hideLoading();
+                    showError('此帳戶未獲得道場授權\n允許的帳戶: ' + ALLOWED_EMAILS.join(', '));
+                    return;
+                }
+
+                console.log('✅ 登入成功:', user.email);
+                hideLoading();
+                
+            } catch (error) {
+                console.error('❌ 登入失敗:', error);
+                hideLoading();
+                showError('登入失敗: ' + error.message);
+            }
+        }
+
+        // 🏠 顯示主應用
+        async function showMainApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('tabsContainer').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'block';
+
+            // 顯示用戶資訊
+            if (currentUser) {
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userName').textContent = currentUser.displayName || currentUser.email;
+                if (currentUser.photoURL) {
+                    document.getElementById('userAvatar').src = currentUser.photoURL;
+                }
+                document.getElementById('welcomeMessage').textContent = `歡迎回到道場，${getUserNickname()}！`;
+            }
+        }
+
+        // 🏠 顯示登入畫面
+        function showLoginScreen() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('tabsContainer').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            currentUser = null;
+        }
+
+        // 👤 獲取用戶暱稱（更新為新名稱）
+        function getUserNickname() {
+            if (!currentUser) return '';
+            
+            if (currentUser.email === 'jeffhimcch@gmail.com') {
+                return '子謙';
+            } else if (currentUser.email === 'dorothylaw0603@gmail.com') {
+                return '小亂';
+            }
+            return currentUser.displayName || 'Unknown';
+        }
+
+        // ☁️ 從 Firebase 載入資料
+        async function loadDataFromFirebase() {
+            try {
+                const { getDoc, doc } = window.firebaseModules;
                 
                 // 載入任務
-                const tasksResponse = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({action: 'read', sheetName: 'Tasks'})
-                });
-                const tasksData = await tasksResponse.json();
-                
-                if (tasksData.success && tasksData.data && tasksData.data.length > 1) {
-                    tasks = tasksData.data.slice(1).map(row => ({
-                        id: row[0] || generateId(),
-                        name: row[1] || '',
-                        points: parseFloat(row[2]) || 0
-                    }));
+                const tasksDoc = await getDoc(doc(db, 'doujou', 'tasks'));
+                if (tasksDoc.exists()) {
+                    tasks = tasksDoc.data().list || [];
                 } else {
                     tasks = getDefaultTasks();
+                    await saveToFirebase();
                 }
 
                 // 載入完成記錄
-                const completionsResponse = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({action: 'read', sheetName: 'Completions'})
-                });
-                const completionsData = await completionsResponse.json();
-                
-                if (completionsData.success && completionsData.data && completionsData.data.length > 1) {
-                    completions = completionsData.data.slice(1).map(row => ({
-                        id: row[0] || generateId(),
-                        taskId: row[1] || '',
-                        completedBy: row[2] || '',
-                        completedAt: row[3] || new Date().toISOString(),
-                        points: parseFloat(row[4]) || 0
-                    }));
+                const completionsDoc = await getDoc(doc(db, 'doujou', 'completions'));
+                if (completionsDoc.exists()) {
+                    completions = completionsDoc.data().list || [];
                 } else {
                     completions = [];
                 }
 
-                // 載入還款記錄
-                const paymentsResponse = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({action: 'read', sheetName: 'Payments'})
-                });
-                const paymentsData = await paymentsResponse.json();
-                
-                if (paymentsData.success && paymentsData.data && paymentsData.data.length > 1) {
-                    payments = paymentsData.data.slice(1).map(row => ({
-                        id: row[0] || generateId(),
-                        from: row[1] || '',
-                        to: row[2] || '',
-                        amount: parseFloat(row[3]) || 0,
-                        date: row[4] || new Date().toISOString(),
-                        reason: row[5] || ''
-                    }));
+                // 載入轉賬記錄
+                const paymentsDoc = await getDoc(doc(db, 'doujou', 'payments'));
+                if (paymentsDoc.exists()) {
+                    payments = paymentsDoc.data().list || [];
                 } else {
                     payments = [];
                 }
 
-                updateSyncStatus('🏮 記錄載入完成');
-                console.log('✅ 道場資料載入成功');
-
+                updateUI();
+                console.log('✅ Firebase 資料載入成功');
+                
             } catch (error) {
-                console.error('載入道場資料失敗:', error);
-                updateSyncStatus('❌ 載入失敗');
-                loadLocalData();
-                showError('無法載入雲端資料，已切換到本地模式');
+                console.error('❌ Firebase 資料載入失敗:', error);
+                showError('資料載入失敗，使用本地備份');
+                loadLocalBackup();
             }
         }
 
-        // ☁️ 儲存到雲端
-        async function saveToCloud() {
+        // 💾 儲存到 Firebase
+        async function saveToFirebase() {
             if (!currentUser) return;
-
+            
             try {
-                updateSyncStatus('📤 同步修行記錄...');
-
-                // 儲存任務
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: 'write',
-                        sheetName: 'Tasks',
-                        values: [
-                            ['ID', '修行項目', '獎金'],
-                            ...tasks.map(task => [task.id, task.name, task.points])
-                        ]
-                    })
+                const { setDoc, doc, serverTimestamp } = window.firebaseModules;
+                
+                await setDoc(doc(db, 'doujou', 'tasks'), {
+                    list: tasks,
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentUser.email
                 });
 
-                // 儲存完成記錄
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: 'write',
-                        sheetName: 'Completions',
-                        values: [
-                            ['ID', '任務ID', '完成者', '完成時間', '獲得金額'],
-                            ...completions.map(comp => [comp.id, comp.taskId, comp.completedBy, comp.completedAt, comp.points])
-                        ]
-                    })
+                await setDoc(doc(db, 'doujou', 'completions'), {
+                    list: completions,
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentUser.email
                 });
 
-                // 儲存還款記錄
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: 'write',
-                        sheetName: 'Payments',
-                        values: [
-                            ['ID', '還款人', '收款人', '金額', '日期', '備註'],
-                            ...payments.map(payment => [payment.id, payment.from, payment.to, payment.amount, payment.date, payment.reason])
-                        ]
-                    })
+                await setDoc(doc(db, 'doujou', 'payments'), {
+                    list: payments,
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentUser.email
                 });
 
-                updateSyncStatus('🏮 同步完成');
-                console.log('✅ 道場同步成功');
-
+                saveLocalBackup();
+                updateSyncStatus('✅ 已同步');
+                
             } catch (error) {
-                console.error('儲存到道場失敗:', error);
+                console.error('❌ Firebase 儲存失敗:', error);
                 updateSyncStatus('❌ 同步失敗');
-                saveLocalData();
+                saveLocalBackup();
+                showError('雲端同步失敗，已儲存到本地');
             }
         }
 
-        // 💾 本地資料處理
-        function loadLocalData() {
-            tasks = JSON.parse(localStorage.getItem('tasks')) || getDefaultTasks();
-            completions = JSON.parse(localStorage.getItem('completions')) || [];
-            payments = JSON.parse(localStorage.getItem('payments')) || [];
+        // 📡 設置實時監聽
+        function setupRealtimeListeners() {
+            const { onSnapshot, doc } = window.firebaseModules;
+            
+            unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+            unsubscribeFunctions = [];
+            
+            try {
+                const unsubscribeTasks = onSnapshot(doc(db, 'doujou', 'tasks'), (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.updatedBy !== currentUser.email) {
+                            tasks = data.list || [];
+                            updateTaskList();
+                            updateTodaySummary();
+                        }
+                    }
+                });
+                unsubscribeFunctions.push(unsubscribeTasks);
+
+                const unsubscribeCompletions = onSnapshot(doc(db, 'doujou', 'completions'), (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.updatedBy !== currentUser.email) {
+                            completions = data.list || [];
+                            updateBalance();
+                            updateHistory();
+                            updateTodaySummary();
+                            updateDebtDisplay();
+                        }
+                    }
+                });
+                unsubscribeFunctions.push(unsubscribeCompletions);
+
+                const unsubscribePayments = onSnapshot(doc(db, 'doujou', 'payments'), (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.updatedBy !== currentUser.email) {
+                            payments = data.list || [];
+                            updateHistory();
+                            updateDebtDisplay();
+                        }
+                    }
+                });
+                unsubscribeFunctions.push(unsubscribePayments);
+
+                console.log('✅ 實時監聽器設置完成');
+                
+            } catch (error) {
+                console.error('❌ 實時監聽器設置失敗:', error);
+            }
         }
 
-        function saveLocalData() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            localStorage.setItem('completions', JSON.stringify(completions));
-            localStorage.setItem('payments', JSON.stringify(payments));
+        // 💾 本地備份
+        function saveLocalBackup() {
+            localStorage.setItem('doujou_tasks', JSON.stringify(tasks));
+            localStorage.setItem('doujou_completions', JSON.stringify(completions));
+            localStorage.setItem('doujou_payments', JSON.stringify(payments));
+        }
+
+        function loadLocalBackup() {
+            tasks = JSON.parse(localStorage.getItem('doujou_tasks')) || getDefaultTasks();
+            completions = JSON.parse(localStorage.getItem('doujou_completions')) || [];
+            payments = JSON.parse(localStorage.getItem('doujou_payments')) || [];
         }
 
         // 🏠 預設任務
@@ -1141,7 +1327,6 @@
             event.target.closest('.tab').classList.add('active');
             document.getElementById(tabName).classList.add('active');
             
-            // 更新債務顯示
             if (tabName === 'payment') {
                 updateDebtDisplay();
             }
@@ -1164,7 +1349,9 @@
             const task = {
                 id: generateId(),
                 name,
-                points
+                points,
+                createdBy: currentUser.email,
+                createdAt: new Date().toISOString()
             };
 
             tasks.push(task);
@@ -1173,13 +1360,31 @@
             document.getElementById('taskPoints').value = '5.0';
             
             updateTaskList();
-            saveToCloud();
+            saveToFirebase();
             showSuccess('修行項目新增成功！');
+        }
+
+        function deleteTask(taskId) {
+            if (!confirm('確定要刪除這個修行項目嗎？相關的完成記錄也會被刪除。')) {
+                return;
+            }
+
+            tasks = tasks.filter(task => task.id !== taskId);
+            completions = completions.filter(completion => completion.taskId !== taskId);
+            
+            updateTaskList();
+            updateBalance();
+            updateHistory();
+            updateTodaySummary();
+            updateDebtDisplay();
+            saveToFirebase();
+            
+            showSuccess('修行項目已刪除！');
         }
 
         function completeTask(taskId, completedBy) {
             if (!currentUser) {
-                showError('請先進入道場');
+                showError('請先登入道場');
                 return;
             }
 
@@ -1189,13 +1394,13 @@
                 return;
             }
 
-            // 允許重複完成！不檢查是否已完成
             const completion = {
                 id: generateId(),
                 taskId: taskId,
                 completedBy: completedBy,
                 completedAt: new Date().toISOString(),
-                points: task.points
+                points: task.points,
+                recordedBy: currentUser.email
             };
 
             completions.push(completion);
@@ -1204,21 +1409,16 @@
             updateBalance();
             updateHistory();
             updateTodaySummary();
-            updateDebtDisplay(); // 完成任務後也要更新欠款顯示
-            saveToCloud();
+            updateDebtDisplay();
+            saveToFirebase();
             
             showSuccess(`${completedBy} 完成「${task.name}」，獲得 $${task.points}！✨`);
         }
 
-        // ✨ 全新轉賬函數
         function setTransfer(from, to) {
-            // 清除所有快速按鈕的 active 狀態
             document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // 設置當前按鈕為 active
             event.target.classList.add('active');
             
-            // 設定選擇器的值
             document.getElementById('paymentFrom').value = from;
             document.getElementById('paymentTo').value = to;
         }
@@ -1228,7 +1428,6 @@
             const to = document.getElementById('paymentTo').value;
             const amount = parseFloat(document.getElementById('paymentAmount').value);
 
-            // 驗證輸入
             if (!from || !to) {
                 showError('請選擇轉賬人和收款人');
                 return;
@@ -1244,31 +1443,28 @@
                 return;
             }
 
-            // 創建轉賬記錄
             const payment = {
                 id: generateId(),
                 from: from,
                 to: to,
                 amount: amount,
                 date: new Date().toISOString(),
-                reason: '修行金結算轉賬'
+                reason: '修行金結算轉賬',
+                recordedBy: currentUser.email
             };
 
             payments.push(payment);
             
-            // 清空表單
             document.getElementById('paymentFrom').value = '';
             document.getElementById('paymentTo').value = '';
             document.getElementById('paymentAmount').value = '';
             
-            // 清除快速按鈕的 active 狀態
             document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
             
-            // 更新界面
             updateBalance();
             updateHistory();
             updateDebtDisplay();
-            saveToCloud();
+            saveToFirebase();
             
             showSuccess(`✅ 記錄轉賬：${from} → ${to} $${amount.toFixed(2)}`);
         }
@@ -1284,127 +1480,90 @@
             updateTodaySummary();
         }
 
-        // 更新今日修行總結（支持重複完成）
         function updateTodaySummary() {
             const today = new Date().toDateString();
+            const todayCompletions = completions.filter(c => new Date(c.completedAt).toDateString() === today);
             
-            // Jeffrey 今日完成的任務（包含重複）
-            const jeffreyTodayCompletions = completions.filter(c => 
-                c.completedBy === 'Jeffrey' && 
-                new Date(c.completedAt).toDateString() === today
-            );
-
-            // Kiki 今日完成的任務（包含重複）
-            const kikiTodayCompletions = completions.filter(c => 
-                c.completedBy === 'Kiki' && 
-                new Date(c.completedAt).toDateString() === today
-            );
-
-            // 更新 Jeffrey
-            const jeffreyTasksEl = document.getElementById('jeffreyTodayTasks');
-            const jeffreyCountEl = document.getElementById('jeffreyTaskCount');
-            const jeffreyEarnedEl = document.getElementById('jeffreyEarnedToday');
+            // 子謙 今日總結
+            const ziqianToday = todayCompletions.filter(c => c.completedBy === '子謙');
+            const ziqianTasksEl = document.getElementById('ziqianTodayTasks');
+            const ziqianCountEl = document.getElementById('ziqianTaskCount');
+            const ziqianEarnedEl = document.getElementById('ziqianEarnedToday');
             
-            if (jeffreyTodayCompletions.length === 0) {
-                jeffreyTasksEl.textContent = '今日還未開始修行';
-                jeffreyCountEl.textContent = '0項任務';
-                jeffreyEarnedEl.textContent = '$0.00';
-            } else {
-                // 統計每個任務完成的次數
-                const taskCounts = {};
-                jeffreyTodayCompletions.forEach(c => {
+            if (ziqianToday.length > 0) {
+                const taskNames = ziqianToday.map(c => {
                     const task = tasks.find(t => t.id === c.taskId);
-                    const taskName = task ? task.name : '未知任務';
-                    taskCounts[taskName] = (taskCounts[taskName] || 0) + 1;
-                });
-
-                const taskSummary = Object.entries(taskCounts).map(([name, count]) => 
-                    count > 1 ? `${name} x${count}` : name
-                ).join('<br>');
+                    return task ? task.name : '未知項目';
+                }).slice(0, 3);
                 
-                jeffreyTasksEl.innerHTML = taskSummary;
-                jeffreyCountEl.textContent = `${jeffreyTodayCompletions.length}項任務`;
+                ziqianTasksEl.textContent = taskNames.join('、') + (ziqianToday.length > 3 ? '...' : '');
+                ziqianCountEl.textContent = `${ziqianToday.length}項任務`;
                 
-                const todayEarned = jeffreyTodayCompletions.reduce((sum, c) => sum + c.points, 0);
-                jeffreyEarnedEl.textContent = `$${todayEarned.toFixed(2)}`;
+                const earned = ziqianToday.reduce((sum, c) => sum + c.points, 0);
+                ziqianEarnedEl.textContent = `+$${earned.toFixed(2)}`;
+            } else {
+                ziqianTasksEl.textContent = '今日還未開始修行';
+                ziqianCountEl.textContent = '0項任務';
+                ziqianEarnedEl.textContent = '$0.00';
             }
-
-            // 更新 Kiki
-            const kikiTasksEl = document.getElementById('kikiTodayTasks');
-            const kikiCountEl = document.getElementById('kikiTaskCount');
-            const kikiEarnedEl = document.getElementById('kikiEarnedToday');
             
-            if (kikiTodayCompletions.length === 0) {
-                kikiTasksEl.textContent = '今日還未開始修行';
-                kikiCountEl.textContent = '0項任務';
-                kikiEarnedEl.textContent = '$0.00';
-            } else {
-                // 統計每個任務完成的次數
-                const taskCounts = {};
-                kikiTodayCompletions.forEach(c => {
+            // 小亂 今日總結
+            const xiaoluanToday = todayCompletions.filter(c => c.completedBy === '小亂');
+            const xiaoluanTasksEl = document.getElementById('xiaoluanTodayTasks');
+            const xiaoluanCountEl = document.getElementById('xiaoluanTaskCount');
+            const xiaoluanEarnedEl = document.getElementById('xiaoluanEarnedToday');
+            
+            if (xiaoluanToday.length > 0) {
+                const taskNames = xiaoluanToday.map(c => {
                     const task = tasks.find(t => t.id === c.taskId);
-                    const taskName = task ? task.name : '未知任務';
-                    taskCounts[taskName] = (taskCounts[taskName] || 0) + 1;
-                });
-
-                const taskSummary = Object.entries(taskCounts).map(([name, count]) => 
-                    count > 1 ? `${name} x${count}` : name
-                ).join('<br>');
+                    return task ? task.name : '未知項目';
+                }).slice(0, 3);
                 
-                kikiTasksEl.innerHTML = taskSummary;
-                kikiCountEl.textContent = `${kikiTodayCompletions.length}項任務`;
+                xiaoluanTasksEl.textContent = taskNames.join('、') + (xiaoluanToday.length > 3 ? '...' : '');
+                xiaoluanCountEl.textContent = `${xiaoluanToday.length}項任務`;
                 
-                const todayEarned = kikiTodayCompletions.reduce((sum, c) => sum + c.points, 0);
-                kikiEarnedEl.textContent = `$${todayEarned.toFixed(2)}`;
+                const earned = xiaoluanToday.reduce((sum, c) => sum + c.points, 0);
+                xiaoluanEarnedEl.textContent = `+$${earned.toFixed(2)}`;
+            } else {
+                xiaoluanTasksEl.textContent = '今日還未開始修行';
+                xiaoluanCountEl.textContent = '0項任務';
+                xiaoluanEarnedEl.textContent = '$0.00';
             }
         }
 
         function updateTaskList() {
-            const taskList = document.getElementById('taskList');
-            const today = new Date().toDateString();
-
+            const taskListEl = document.getElementById('taskList');
+            if (!taskListEl) return;
+            
             if (tasks.length === 0) {
-                taskList.innerHTML = '<p style="text-align: center; color: #A9790B;">暫無修行項目</p>';
+                taskListEl.innerHTML = '<p style="text-align: center; color: #A9790B; font-style: italic;">暫無修行項目，請先新增一些任務！</p>';
                 return;
             }
-
-            taskList.innerHTML = tasks.map(task => {
-                // 計算今日完成次數（支持重複）
-                const jeffreyTodayCount = completions.filter(c => 
-                    c.taskId === task.id && 
-                    c.completedBy === 'Jeffrey' && 
-                    new Date(c.completedAt).toDateString() === today
-                ).length;
-
-                const kikiTodayCount = completions.filter(c => 
-                    c.taskId === task.id && 
-                    c.completedBy === 'Kiki' && 
-                    new Date(c.completedAt).toDateString() === today
-                ).length;
-
+            
+            taskListEl.innerHTML = tasks.map(task => {
+                const taskCompletions = completions.filter(c => c.taskId === task.id);
+                const today = new Date().toDateString();
+                const todayCompletions = taskCompletions.filter(c => new Date(c.completedAt).toDateString() === today);
+                
+                const ziqianToday = todayCompletions.filter(c => c.completedBy === '子謙').length;
+                const xiaoluanToday = todayCompletions.filter(c => c.completedBy === '小亂').length;
+                
                 return `
                     <div class="task-item">
                         <div class="task-info">
                             <div class="task-name">${task.name}</div>
                             <div class="task-completion-status">
-                                ${jeffreyTodayCount > 0 ? 
-                                    `<span class="completion-count">Jeffrey: ${jeffreyTodayCount}次</span>` : 
-                                    '<span style="color: #E65100;">⭕ Jeffrey: 未完成</span>'
-                                }
-                                ${kikiTodayCount > 0 ? 
-                                    `<span class="completion-count">Kiki: ${kikiTodayCount}次</span>` : 
-                                    '<span style="color: #E65100;">⭕ Kiki: 未完成</span>'
-                                }
+                                今日完成：
+                                ${ziqianToday > 0 ? `<span class="completion-count">子謙 ${ziqianToday}次</span>` : ''}
+                                ${xiaoluanToday > 0 ? `<span class="completion-count">小亂 ${xiaoluanToday}次</span>` : ''}
+                                ${ziqianToday === 0 && xiaoluanToday === 0 ? '尚未完成' : ''}
                             </div>
                         </div>
-                        <div class="money-badge">$${task.points}</div>
-                        <div class="complete-buttons">
-                            <button class="complete-btn" onclick="completeTask('${task.id}', 'Jeffrey')">
-                                Jeffrey
-                            </button>
-                            <button class="complete-btn" onclick="completeTask('${task.id}', 'Kiki')">
-                                Kiki
-                            </button>
+                        <div class="task-actions">
+                            <div class="money-badge">$${task.points}</div>
+                            <button class="complete-btn" onclick="completeTask('${task.id}', '子謙')">子謙完成</button>
+                            <button class="complete-btn" onclick="completeTask('${task.id}', '小亂')">小亂完成</button>
+                            <button class="delete-btn" onclick="deleteTask('${task.id}')">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -1412,111 +1571,85 @@
         }
 
         function updateBalance() {
-            const jeffreyEarned = completions
-                .filter(c => c.completedBy === 'Jeffrey')
-                .reduce((sum, c) => sum + c.points, 0);
+            // 計算總收入
+            const ziqianTotal = completions.filter(c => c.completedBy === '子謙').reduce((sum, c) => sum + c.points, 0);
+            const xiaoluanTotal = completions.filter(c => c.completedBy === '小亂').reduce((sum, c) => sum + c.points, 0);
             
-            const kikiEarned = completions
-                .filter(c => c.completedBy === 'Kiki')
-                .reduce((sum, c) => sum + c.points, 0);
-
-            document.getElementById('jeffreyBalance').textContent = `$${jeffreyEarned.toFixed(2)}`;
-            document.getElementById('kikiBalance').textContent = `$${kikiEarned.toFixed(2)}`;
+            // 計算轉賬調整
+            const ziqianReceived = payments.filter(p => p.to === '子謙').reduce((sum, p) => sum + p.amount, 0);
+            const ziqianPaid = payments.filter(p => p.from === '子謙').reduce((sum, p) => sum + p.amount, 0);
+            const xiaoluanReceived = payments.filter(p => p.to === '小亂').reduce((sum, p) => sum + p.amount, 0);
+            const xiaoluanPaid = payments.filter(p => p.from === '小亂').reduce((sum, p) => sum + p.amount, 0);
+            
+            // 計算最終餘額
+            const ziqianBalance = ziqianTotal + ziqianReceived - ziqianPaid;
+            const xiaoluanBalance = xiaoluanTotal + xiaoluanReceived - xiaoluanPaid;
+            
+            // 更新顯示
+            document.getElementById('ziqianBalance').textContent = `$${ziqianBalance.toFixed(2)}`;
+            document.getElementById('xiaoluanBalance').textContent = `$${xiaoluanBalance.toFixed(2)}`;
         }
 
-        // ✨ 改進版欠債顯示函數
         function updateDebtDisplay() {
-            // 計算總賺取金額
-            const jeffreyEarned = completions
-                .filter(c => c.completedBy === 'Jeffrey')
-                .reduce((sum, c) => sum + c.points, 0);
+            // 計算餘額
+            const ziqianTotal = completions.filter(c => c.completedBy === '子謙').reduce((sum, c) => sum + c.points, 0);
+            const xiaoluanTotal = completions.filter(c => c.completedBy === '小亂').reduce((sum, c) => sum + c.points, 0);
             
-            const kikiEarned = completions
-                .filter(c => c.completedBy === 'Kiki')
-                .reduce((sum, c) => sum + c.points, 0);
-
-            // 計算淨轉賬金額（Jeffrey收到的 - Jeffrey支出的）
-            const jeffreyReceived = payments
-                .filter(p => p.to === 'Jeffrey')
-                .reduce((sum, p) => sum + p.amount, 0);
+            const ziqianReceived = payments.filter(p => p.to === '子謙').reduce((sum, p) => sum + p.amount, 0);
+            const ziqianPaid = payments.filter(p => p.from === '子謙').reduce((sum, p) => sum + p.amount, 0);
+            const xiaoluanReceived = payments.filter(p => p.to === '小亂').reduce((sum, p) => sum + p.amount, 0);
+            const xiaoluanPaid = payments.filter(p => p.from === '小亂').reduce((sum, p) => sum + p.amount, 0);
             
-            const jeffreyPaid = payments
-                .filter(p => p.from === 'Jeffrey')
-                .reduce((sum, p) => sum + p.amount, 0);
-
-            const kikiReceived = payments
-                .filter(p => p.to === 'Kiki')
-                .reduce((sum, p) => sum + p.amount, 0);
+            const ziqianBalance = ziqianTotal + ziqianReceived - ziqianPaid;
+            const xiaoluanBalance = xiaoluanTotal + xiaoluanReceived - xiaoluanPaid;
             
-            const kikiPaid = payments
-                .filter(p => p.from === 'Kiki')
-                .reduce((sum, p) => sum + p.amount, 0);
-
-            // 計算實際餘額（賺取的 + 收到的 - 支付的）
-            const jeffreyActualBalance = jeffreyEarned + jeffreyReceived - jeffreyPaid;
-            const kikiActualBalance = kikiEarned + kikiReceived - kikiPaid;
-
-            // 計算欠債差額
-            const difference = jeffreyActualBalance - kikiActualBalance;
+            const diff = ziqianBalance - xiaoluanBalance;
+            const debtEl = document.getElementById('debtDisplay');
             
-            const debtDisplay = document.getElementById('debtDisplay');
-            
-            if (Math.abs(difference) < 0.01) {
-                debtDisplay.innerHTML = '🎉 完美平衡！沒有欠款';
-                debtDisplay.className = 'debt-display debt-positive';
-            } else if (difference > 0) {
-                debtDisplay.innerHTML = `💰 Kiki 欠 Jeffrey <strong>$${difference.toFixed(2)}</strong>`;
-                debtDisplay.className = 'debt-display debt-negative';
+            if (Math.abs(diff) < 0.01) {
+                debtEl.textContent = '🎯 帳目已結清！';
+                debtEl.className = 'debt-display';
+            } else if (diff > 0) {
+                debtEl.textContent = `小亂 欠 子謙 $${diff.toFixed(2)}`;
+                debtEl.className = 'debt-display debt-negative';
             } else {
-                debtDisplay.innerHTML = `💰 Jeffrey 欠 Kiki <strong>$${Math.abs(difference).toFixed(2)}</strong>`;
-                debtDisplay.className = 'debt-display debt-negative';
+                debtEl.textContent = `子謙 欠 小亂 $${Math.abs(diff).toFixed(2)}`;
+                debtEl.className = 'debt-display debt-positive';
             }
         }
 
         function updateHistory() {
             // 更新完成記錄
-            const completionHistory = document.getElementById('completionHistory');
-            const recentCompletions = completions
-                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
-                .slice(0, 10);
-
-            if (recentCompletions.length === 0) {
-                completionHistory.innerHTML = '<p style="text-align: center; color: #A9790B;">暫無修行記錄</p>';
-            } else {
-                completionHistory.innerHTML = recentCompletions.map(completion => {
+            const completionHistoryEl = document.getElementById('completionHistory');
+            if (completionHistoryEl) {
+                const recentCompletions = completions.slice(-20).reverse();
+                completionHistoryEl.innerHTML = recentCompletions.map(completion => {
                     const task = tasks.find(t => t.id === completion.taskId);
-                    const taskName = task ? task.name : '已刪除的修行項目';
-                    
+                    const taskName = task ? task.name : '已刪除的任務';
                     return `
                         <div class="history-item">
                             <div class="history-info">
-                                <strong>${completion.completedBy}</strong> 完成了 「${taskName}」
-                                <br><small>獲得 $${completion.points}</small>
+                                ${completion.completedBy} 完成「${taskName}」 (+$${completion.points})
                             </div>
                             <div class="history-time">${formatDateTime(completion.completedAt)}</div>
                         </div>
                     `;
-                }).join('');
+                }).join('') || '<p style="text-align: center; color: #A9790B; font-style: italic;">暫無修行記錄</p>';
             }
-
+            
             // 更新轉賬記錄
-            const paymentHistory = document.getElementById('paymentHistory');
-            const recentPayments = payments
-                .sort((a, b) => new Date(b.date) - new Date(a.date))
-                .slice(0, 10);
-
-            if (recentPayments.length === 0) {
-                paymentHistory.innerHTML = '<p style="text-align: center; color: #A9790B;">暫無轉賬記錄</p>';
-            } else {
-                paymentHistory.innerHTML = recentPayments.map(payment => `
+            const paymentHistoryEl = document.getElementById('paymentHistory');
+            if (paymentHistoryEl) {
+                const recentPayments = payments.slice(-20).reverse();
+                paymentHistoryEl.innerHTML = recentPayments.map(payment => `
                     <div class="history-item">
                         <div class="history-info">
-                            <strong>${payment.from} → ${payment.to} $${payment.amount.toFixed(2)}</strong>
-                            ${payment.reason ? `<br><small>${payment.reason}</small>` : ''}
+                            ${payment.from} → ${payment.to}: $${payment.amount.toFixed(2)}
+                            <small style="display: block; color: #8D6E63;">${payment.reason}</small>
                         </div>
                         <div class="history-time">${formatDateTime(payment.date)}</div>
                     </div>
-                `).join('');
+                `).join('') || '<p style="text-align: center; color: #A9790B; font-style: italic;">暫無轉賬記錄</p>';
             }
         }
 
@@ -1547,19 +1680,35 @@
         }
 
         function updateSyncStatus(status) {
-            document.getElementById('syncStatus').textContent = status;
-        }
-
-        function logout() {
-            if (confirm('確定要離開道場嗎？')) {
-                localStorage.removeItem('currentUser');
-                currentUser = null;
-                document.getElementById('logoutBtn').style.display = 'none';
-                showGoogleLogin();
+            const syncEl = document.getElementById('syncStatus');
+            syncEl.textContent = status;
+            
+            syncEl.classList.remove('sync-error');
+            if (status.includes('❌') || status.includes('失敗')) {
+                syncEl.classList.add('sync-error');
             }
         }
 
-        function resetData() {
+        async function logout() {
+            if (confirm('確定要離開道場嗎？')) {
+                try {
+                    const { signOut } = window.firebaseModules;
+                    
+                    unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+                    unsubscribeFunctions = [];
+                    
+                    await signOut(auth);
+                    currentUser = null;
+                    showLoginScreen();
+                    updateSyncStatus('🔄 連接中...');
+                } catch (error) {
+                    console.error('登出失敗:', error);
+                    showError('登出失敗');
+                }
+            }
+        }
+
+        async function resetData() {
             if (!confirm('⚠️ 確定要重置道場所有資料嗎？此操作無法復原！')) {
                 return;
             }
@@ -1573,47 +1722,46 @@
             payments = [];
             
             updateUI();
-            saveToCloud();
+            await saveToFirebase();
             showSuccess('道場資料已重置');
         }
 
         // 🚀 應用初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('🏮 亂道場の修行列表啟動中...');
             
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                console.log('發現修行者:', savedUser);
-                currentUser = savedUser;
-                
-                document.getElementById('logoutBtn').style.display = 'block';
-                
-                loadFromCloud().then(() => {
-                    updateUI();
-                    console.log('✅ 道場初始化完成');
-                }).catch(error => {
-                    console.error('道場初始化錯誤:', error);
-                    loadLocalData();
-                    updateUI();
-                    showError('雲端道場連接失敗，已切換到本地模式');
+            showLoading('初始化 Firebase...');
+            
+            let retryCount = 0;
+            const maxRetries = 50;
+            
+            const waitForFirebase = () => {
+                return new Promise((resolve, reject) => {
+                    const checkModules = () => {
+                        if (window.firebaseModules) {
+                            resolve();
+                        } else if (retryCount < maxRetries) {
+                            retryCount++;
+                            setTimeout(checkModules, 100);
+                        } else {
+                            reject(new Error('Firebase modules 載入超時'));
+                        }
+                    };
+                    checkModules();
                 });
-            } else {
-                console.log('新修行者，顯示進入道場界面');
-                showGoogleLogin();
+            };
+            
+            try {
+                await waitForFirebase();
+                await initializeFirebase();
+                hideLoading();
+            } catch (error) {
+                console.error('初始化失敗:', error);
+                hideLoading();
+                updateSyncStatus('❌ 初始化失敗');
+                showError('應用初始化失敗: ' + error.message);
             }
         });
-        
-        // 🔄 定期同步道場
-        setInterval(async () => {
-            if (currentUser) {
-                try {
-                    await testConnection();
-                } catch (error) {
-                    updateSyncStatus('🔄 重新連接道場中');
-                    console.log('道場定期檢查失敗:', error);
-                }
-            }
-        }, 30000);
     </script>
 </body>
 </html>
