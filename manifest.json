@@ -1,40 +1,51 @@
 <script>
-    // Create manifest with your custom icon
+    // Create manifest with version control
     const manifestData = {
         "name": "家務記錄 App",
         "short_name": "家務記錄",
         "description": "安全的家務記錄和結算應用程式",
-        "start_url": "./",
+        "start_url": "./?v=2024001", // Add version parameter
         "display": "standalone",
         "background_color": "#ffffff",
         "theme_color": "#4CAF50",
         "orientation": "portrait",
         "scope": "./",
+        "version": "2024.01.01", // Add version field
         "icons": [
             {
-                "src": "./icon-192.png",
+                "src": "./icon-192.png?v=2024001", // Version your icons too
                 "sizes": "192x192",
                 "type": "image/png"
             },
             {
-                "src": "./icon-192.png",
+                "src": "./icon-192.png?v=2024001",
                 "sizes": "512x512",
                 "type": "image/png"
             },
             {
-                "src": "./icon-192.png",
+                "src": "./icon-192.png?v=2024001",
                 "sizes": "180x180",
                 "type": "image/png"
             }
         ]
     };
 
-    // Register manifest
-    const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+    // Add cache-busting to manifest blob
+    const manifestString = JSON.stringify(manifestData);
+    const manifestBlob = new Blob([manifestString], { type: 'application/json' });
     const manifestURL = URL.createObjectURL(manifestBlob);
     
     const link = document.createElement('link');
     link.rel = 'manifest';
     link.href = manifestURL;
     document.head.appendChild(link);
+
+    // Force PWA update check
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                registration.update(); // Force update check
+            }
+        });
+    }
 </script>
