@@ -6,7 +6,7 @@
     <title>🏮 亂道場の修行列表</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK - 保持原有配置 -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -45,7 +45,7 @@
             background: linear-gradient(135deg, #2C1810 0%, #3E2723 20%, #4E342E 50%, #5D4037 80%, #6D4C41 100%);
             min-height: 100vh;
             color: #EFEBE9;
-            padding: 0 0 140px 0; /* 增加底部padding避免iPhone底部衝突 */
+            padding: 0 0 140px 0; /* 🔥 增加底部padding避免iPhone底部衝突 */
             position: relative;
         }
 
@@ -232,7 +232,7 @@
             margin-top: 8px;
         }
         
-        /* 📱 底部標籤優化 - 主要修改點 1 */
+        /* 🔥 修改點 1: 底部標籤優化 - 支持iPhone 15 */
         .tabs {
             position: fixed;
             bottom: 0;
@@ -271,6 +271,7 @@
             content: attr(data-icon);
             font-size: 2em; /* 🔥 增大圖標 */
             margin-bottom: 5px;
+            display: block;
         }
         
         .tab.active {
@@ -664,7 +665,7 @@
             background: rgba(244,67,54,0.9) !important;
         }
 
-        /* 🎯 債務計算優化 - 主要修改點 2 */
+        /* 🔥 修改點 2: 債務計算優化 */
         .debt-section {
             background: linear-gradient(135deg, rgba(46,24,16,0.9), rgba(62,39,35,0.8));
             border-radius: 15px;
@@ -1091,7 +1092,7 @@
     </div>
 
     <script>
-        // 🔥 Firebase 配置 - 保持原有
+        // 🔥 Firebase 配置
         const firebaseConfig = {
             apiKey: "AIzaSyCTBIi5ZSNG0Ow7DlyCkKcKXevPJJay3t8",
             authDomain: "housework-app-4c138.firebaseapp.com",
@@ -1101,7 +1102,7 @@
             appId: "1:61329794359:web:8706f20ba899909e86e6b2"
         };
 
-        // 🔐 允許登入的帳戶 - 保持原有
+        // 🔐 允許登入的帳戶
         const ALLOWED_EMAILS = [
             'jeffhimcch@gmail.com',      // 子謙 的 Gmail
             'dorothylaw0603@gmail.com'   // 小亂 的 Gmail
@@ -1115,7 +1116,7 @@
         let payments = [];
         let unsubscribeFunctions = [];
 
-        // Firebase 初始化等函數保持原有...
+        // Firebase 初始化
         async function initializeFirebase() {
             try {
                 const {
@@ -1234,9 +1235,444 @@
             return currentUser.displayName || 'Unknown';
         }
 
-        // 其他函數保持原有...（省略重複代碼）
+        // ☁️ 從 Firebase 載入資料
+        async function loadDataFromFirebase() {
+            try {
+                const { getDoc, doc } = window.firebaseModules;
+                
+                const tasksDoc = await getDoc(doc(db, 'doujou', 'tasks'));
+                if (tasksDoc.exists()) {
+                    tasks = tasksDoc.data().list || [];
+                } else {
+                    tasks = getDefaultTasks();
+                    await saveToFirebase();
+                }
 
-        // 🎯 修正債務計算邏輯 - 主要修改點 2
+                const completionsDoc = await getDoc(doc(db, 'doujou', 'completions'));
+                if (completionsDoc.exists()) {
+                    completions = completionsDoc.data().list || [];
+                } else {
+                    completions = [];
+                }
+
+                const paymentsDoc = await getDoc(doc(db, 'doujou', 'payments'));
+                if (paymentsDoc.exists()) {
+                    payments = paymentsDoc.data().list || [];
+                } else {
+                    payments = [];
+                }
+
+                updateUI();
+                console.log('✅ Firebase 資料載入成功');
+                
+            } catch (error) {
+                console.error('❌ Firebase 資料載入失敗:', error);
+                showError('資料載入失敗，使用本地備份');
+                loadLocalBackup();
+            }
+        }
+
+        // 💾 儲存到 Firebase
+        async function saveToFirebase() {
+            if (!currentUser) return;
+            
+            try {
+                const { setDoc, doc, serverTimestamp } = window.firebaseModules;
+                
+                await setDoc(doc(db, 'doujou', 'tasks'), {
+                    list: tasks,
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentUser.email
+                });
+
+                await setDoc(doc(db, 'doujou', 'completions'), {
+                    list: completions,
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentUser.email
+                });
+
+                await setDoc(doc(db, 'doujou', 'payments'), {
+                    list: payments,
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentUser.email
+                });
+
+                saveLocalBackup();
+                updateSyncStatus('✅ 已同步');
+                
+            } catch (error) {
+                console.error('❌ Firebase 儲存失敗:', error);
+                updateSyncStatus('❌ 同步失敗');
+                saveLocalBackup();
+                showError('雲端同步失敗，已儲存到本地');
+            }
+        }
+
+        // 📡 設置實時監聽
+        function setupRealtimeListeners() {
+            const { onSnapshot, doc } = window.firebaseModules;
+            
+            unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+            unsubscribeFunctions = [];
+            
+            try {
+                const unsubscribeTasks = onSnapshot(doc(db, 'doujou', 'tasks'), (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.updatedBy !== currentUser.email) {
+                            tasks = data.list || [];
+                            updateTaskList();
+                            updateTodaySummary();
+                        }
+                    }
+                });
+                unsubscribeFunctions.push(unsubscribeTasks);
+
+                const unsubscribeCompletions = onSnapshot(doc(db, 'doujou', 'completions'), (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.updatedBy !== currentUser.email) {
+                            completions = data.list || [];
+                            updateBalance();
+                            updateHistory();
+                            updateTodaySummary();
+                            updateDebtDisplay();
+                        }
+                    }
+                });
+                unsubscribeFunctions.push(unsubscribeCompletions);
+
+                const unsubscribePayments = onSnapshot(doc(db, 'doujou', 'payments'), (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const data = docSnapshot.data();
+                        if (data.updatedBy !== currentUser.email) {
+                            payments = data.list || [];
+                            updateHistory();
+                            updateDebtDisplay();
+                        }
+                    }
+                });
+                unsubscribeFunctions.push(unsubscribePayments);
+
+                console.log('✅ 實時監聽器設置完成');
+                
+            } catch (error) {
+                console.error('❌ 實時監聽器設置失敗:', error);
+            }
+        }
+
+        // 💾 本地備份
+        function saveLocalBackup() {
+            localStorage.setItem('doujou_tasks', JSON.stringify(tasks));
+            localStorage.setItem('doujou_completions', JSON.stringify(completions));
+            localStorage.setItem('doujou_payments', JSON.stringify(payments));
+        }
+
+        function loadLocalBackup() {
+            tasks = JSON.parse(localStorage.getItem('doujou_tasks')) || getDefaultTasks();
+            completions = JSON.parse(localStorage.getItem('doujou_completions')) || [];
+            payments = JSON.parse(localStorage.getItem('doujou_payments')) || [];
+        }
+
+        // 🏠 預設任務
+        function getDefaultTasks() {
+            return [
+                { id: '1', name: '洗碗修行', points: 5.0 },
+                { id: '2', name: '倒垃圾冥想', points: 3.0 },
+                { id: '3', name: '掃地禪修', points: 8.0 },
+                { id: '4', name: '洗衣靜心', points: 12.0 },
+                { id: '5', name: '整理空間', points: 15.0 }
+            ];
+        }
+
+        // 🔧 工具函數
+        function generateId() {
+            return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+        }
+
+        function formatDateTime(dateTime) {
+            const date = new Date(dateTime);
+            return date.toLocaleString('zh-HK', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 🎯 核心功能函數
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'payment') {
+                updateDebtDisplay();
+            }
+        }
+
+        function addTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const points = parseFloat(document.getElementById('taskPoints').value);
+
+            if (!name) {
+                showError('請輸入修行項目名稱');
+                return;
+            }
+
+            if (!points || points <= 0) {
+                showError('請輸入有效的獎金金額');
+                return;
+            }
+
+            const task = {
+                id: generateId(),
+                name,
+                points,
+                createdBy: currentUser.email,
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.push(task);
+            
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskPoints').value = '5.0';
+            
+            updateTaskList();
+            saveToFirebase();
+            showSuccess('修行項目新增成功！');
+        }
+
+        function deleteTask(taskId) {
+            if (!confirm('確定要刪除這個修行項目嗎？相關的完成記錄也會被刪除。')) {
+                return;
+            }
+
+            tasks = tasks.filter(task => task.id !== taskId);
+            completions = completions.filter(completion => completion.taskId !== taskId);
+            
+            updateTaskList();
+            updateBalance();
+            updateHistory();
+            updateTodaySummary();
+            updateDebtDisplay();
+            saveToFirebase();
+            
+            showSuccess('修行項目已刪除！');
+        }
+
+        function completeTask(taskId, completedBy) {
+            if (!currentUser) {
+                showError('請先登入道場');
+                return;
+            }
+
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) {
+                showError('找不到該修行項目');
+                return;
+            }
+
+            const completion = {
+                id: generateId(),
+                taskId: taskId,
+                completedBy: completedBy,
+                completedAt: new Date().toISOString(),
+                points: task.points,
+                recordedBy: currentUser.email
+            };
+
+            completions.push(completion);
+            
+            updateTaskList();
+            updateBalance();
+            updateHistory();
+            updateTodaySummary();
+            updateDebtDisplay();
+            saveToFirebase();
+            
+            showSuccess(`${completedBy} 完成「${task.name}」，獲得 $${task.points}！✨`);
+        }
+
+        function setTransfer(from, to) {
+            document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('paymentFrom').value = from;
+            document.getElementById('paymentTo').value = to;
+        }
+
+        function recordPayment() {
+            const from = document.getElementById('paymentFrom').value;
+            const to = document.getElementById('paymentTo').value;
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+
+            if (!from || !to) {
+                showError('請選擇轉賬人和收款人');
+                return;
+            }
+
+            if (from === to) {
+                showError('轉賬人和收款人不能是同一人');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                showError('請輸入有效轉賬金額');
+                return;
+            }
+
+            const payment = {
+                id: generateId(),
+                from: from,
+                to: to,
+                amount: amount,
+                date: new Date().toISOString(),
+                reason: '修行金結算轉賬',
+                recordedBy: currentUser.email
+            };
+
+            payments.push(payment);
+            
+            document.getElementById('paymentFrom').value = '';
+            document.getElementById('paymentTo').value = '';
+            document.getElementById('paymentAmount').value = '';
+            
+            document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
+            
+            updateBalance();
+            updateHistory();
+            updateDebtDisplay();
+            saveToFirebase();
+            
+            showSuccess(`✅ 記錄轉賬：${from} → ${to} $${amount.toFixed(2)}`);
+        }
+
+        // 🔄 界面更新函數
+        function updateUI() {
+            if (!currentUser) return;
+            
+            updateTaskList();
+            updateBalance();
+            updateHistory();
+            updateDebtDisplay();
+            updateTodaySummary();
+        }
+
+        function updateTodaySummary() {
+            const today = new Date().toDateString();
+            const todayCompletions = completions.filter(c => new Date(c.completedAt).toDateString() === today);
+            
+            // 子謙 今日總結
+            const ziqianToday = todayCompletions.filter(c => c.completedBy === '子謙');
+            const ziqianTasksEl = document.getElementById('ziqianTodayTasks');
+            const ziqianCountEl = document.getElementById('ziqianTaskCount');
+            const ziqianEarnedEl = document.getElementById('ziqianEarnedToday');
+            
+            if (ziqianToday.length > 0) {
+                const taskNames = ziqianToday.map(c => {
+                    const task = tasks.find(t => t.id === c.taskId);
+                    return task ? task.name : '未知項目';
+                }).slice(0, 3);
+                
+                ziqianTasksEl.textContent = taskNames.join('、') + (ziqianToday.length > 3 ? '...' : '');
+                ziqianCountEl.textContent = `${ziqianToday.length}項任務`;
+                
+                const earned = ziqianToday.reduce((sum, c) => sum + c.points, 0);
+                ziqianEarnedEl.textContent = `+$${earned.toFixed(2)}`;
+            } else {
+                ziqianTasksEl.textContent = '今日還未開始修行';
+                ziqianCountEl.textContent = '0項任務';
+                ziqianEarnedEl.textContent = '$0.00';
+            }
+            
+            // 小亂 今日總結
+            const xiaoluanToday = todayCompletions.filter(c => c.completedBy === '小亂');
+            const xiaoluanTasksEl = document.getElementById('xiaoluanTodayTasks');
+            const xiaoluanCountEl = document.getElementById('xiaoluanTaskCount');
+            const xiaoluanEarnedEl = document.getElementById('xiaoluanEarnedToday');
+            
+            if (xiaoluanToday.length > 0) {
+                const taskNames = xiaoluanToday.map(c => {
+                    const task = tasks.find(t => t.id === c.taskId);
+                    return task ? task.name : '未知項目';
+                }).slice(0, 3);
+                
+                xiaoluanTasksEl.textContent = taskNames.join('、') + (xiaoluanToday.length > 3 ? '...' : '');
+                xiaoluanCountEl.textContent = `${xiaoluanToday.length}項任務`;
+                
+                const earned = xiaoluanToday.reduce((sum, c) => sum + c.points, 0);
+                xiaoluanEarnedEl.textContent = `+$${earned.toFixed(2)}`;
+            } else {
+                xiaoluanTasksEl.textContent = '今日還未開始修行';
+                xiaoluanCountEl.textContent = '0項任務';
+                xiaoluanEarnedEl.textContent = '$0.00';
+            }
+        }
+
+        function updateTaskList() {
+            const taskListEl = document.getElementById('taskList');
+            if (!taskListEl) return;
+            
+            if (tasks.length === 0) {
+                taskListEl.innerHTML = '<p style="text-align: center; color: #BCAAA4; font-style: italic;">暫無修行項目，請先新增一些任務！</p>';
+                return;
+            }
+            
+            taskListEl.innerHTML = tasks.map(task => {
+                const taskCompletions = completions.filter(c => c.taskId === task.id);
+                const today = new Date().toDateString();
+                const todayCompletions = taskCompletions.filter(c => new Date(c.completedAt).toDateString() === today);
+                
+                const ziqianToday = todayCompletions.filter(c => c.completedBy === '子謙').length;
+                const xiaoluanToday = todayCompletions.filter(c => c.completedBy === '小亂').length;
+                
+                return `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-completion-status">
+                                今日完成：
+                                ${ziqianToday > 0 ? `<span class="completion-count">子謙 ${ziqianToday}次</span>` : ''}
+                                ${xiaoluanToday > 0 ? `<span class="completion-count">小亂 ${xiaoluanToday}次</span>` : ''}
+                                ${ziqianToday === 0 && xiaoluanToday === 0 ? '尚未完成' : ''}
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <div class="money-badge">$${task.points}</div>
+                            <button class="complete-btn" onclick="completeTask('${task.id}', '子謙')">子謙完成</button>
+                            <button class="complete-btn" onclick="completeTask('${task.id}', '小亂')">小亂完成</button>
+                            <button class="delete-btn" onclick="deleteTask('${task.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateBalance() {
+            // 計算總收入
+            const ziqianTotal = completions.filter(c => c.completedBy === '子謙').reduce((sum, c) => sum + c.points, 0);
+            const xiaoluanTotal = completions.filter(c => c.completedBy === '小亂').reduce((sum, c) => sum + c.points, 0);
+            
+            // 計算轉賬調整
+            const ziqianReceived = payments.filter(p => p.to === '子謙').reduce((sum, p) => sum + p.amount, 0);
+            const ziqianPaid = payments.filter(p => p.from === '子謙').reduce((sum, p) => sum + p.amount, 0);
+            const xiaoluanReceived = payments.filter(p => p.to === '小亂').reduce((sum, p) => sum + p.amount, 0);
+            const xiaoluanPaid = payments.filter(p => p.from === '小亂').reduce((sum, p) => sum + p.amount, 0);
+            
+            // 計算最終餘額
+            const ziqianBalance = ziqianTotal + ziqianReceived - ziqianPaid;
+            const xiaoluanBalance = xiaoluanTotal + xiaoluanReceived - xiaoluanPaid;
+            
+            // 更新顯示
+            document.getElementById('ziqianBalance').textContent = `$${ziqianBalance.toFixed(2)}`;
+            document.getElementById('xiaoluanBalance').textContent = `$${xiaoluanBalance.toFixed(2)}`;
+        }
+
+        // 🔥 修改點 2: 修正債務計算邏輯
         function updateDebtDisplay() {
             // 計算每人的修行總收入
             const ziqianEarned = completions.filter(c => c.completedBy === '子謙').reduce((sum, c) => sum + c.points, 0);
@@ -1246,49 +1682,146 @@
             const totalEarned = ziqianEarned + xiaoluanEarned;
             const averageAmount = totalEarned / 2;
             
-            // 計算應收/應付金額
-            const ziqianShouldReceive = averageAmount - ziqianEarned;
-            const xiaoluanShouldReceive = averageAmount - xiaoluanEarned;
+            // 計算應收/應付金額（理想狀態下每人應該有的金額）
+            const ziqianShouldHave = averageAmount;
+            const xiaoluanShouldHave = averageAmount;
             
             // 計算已轉賬金額
             const ziqianReceived = payments.filter(p => p.to === '子謙').reduce((sum, p) => sum + p.amount, 0);
             const ziqianPaid = payments.filter(p => p.from === '子謙').reduce((sum, p) => sum + p.amount, 0);
-            const xiaoluanReceived = payments.filter(p => p.to === '小亂').reduce((sum, p) => sum + p.amount, 0);
-            const xiaoluanPaid = payments.filter(p => p.from === '小亂').reduce((sum, p) => sum + p.amount, 0);
             
-            // 計算淨轉賬
+            // 計算淨轉賬（子謙的角度：收到的錢 - 付出的錢）
             const ziqianNetReceived = ziqianReceived - ziqianPaid;
             
+            // 計算子謙實際擁有的金額
+            const ziqianActualHave = ziqianEarned + ziqianNetReceived;
+            
             // 計算剩餘債務
-            const remainingDebt = ziqianShouldReceive - ziqianNetReceived;
+            const debtAmount = ziqianShouldHave - ziqianActualHave;
             
             const debtEl = document.getElementById('debtDisplay');
             
-            if (Math.abs(remainingDebt) < 0.01) {
+            if (Math.abs(debtAmount) < 0.01) {
                 debtEl.textContent = '⚖️ 修行金已完美平衡！';
                 debtEl.className = 'debt-display debt-balanced';
-            } else if (remainingDebt > 0) {
-                debtEl.textContent = `小亂師傅 欠 子謙師傅 $${Math.abs(remainingDebt).toFixed(2)}`;
+            } else if (debtAmount > 0) {
+                debtEl.textContent = `小亂師傅 欠 子謙師傅 $${Math.abs(debtAmount).toFixed(2)}`;
                 debtEl.className = 'debt-display debt-owed';
             } else {
-                debtEl.textContent = `子謙師傅 欠 小亂師傅 $${Math.abs(remainingDebt).toFixed(2)}`;
+                debtEl.textContent = `子謙師傅 欠 小亂師傅 $${Math.abs(debtAmount).toFixed(2)}`;
                 debtEl.className = 'debt-display debt-owed';
             }
         }
 
-        // 其他原有函數保持不變...
-        // (這裡省略其他沒有修改的函數以節省空間)
+        function updateHistory() {
+            // 更新完成記錄
+            const completionHistoryEl = document.getElementById('completionHistory');
+            if (completionHistoryEl) {
+                const recentCompletions = completions.slice(-20).reverse();
+                completionHistoryEl.innerHTML = recentCompletions.map(completion => {
+                    const task = tasks.find(t => t.id === completion.taskId);
+                    const taskName = task ? task.name : '已刪除的任務';
+                    return `
+                        <div class="history-item">
+                            <div class="history-info">
+                                ${completion.completedBy} 完成「${taskName}」 (+$${completion.points})
+                            </div>
+                            <div class="history-time">${formatDateTime(completion.completedAt)}</div>
+                        </div>
+                    `;
+                }).join('') || '<p style="text-align: center; color: #BCAAA4; font-style: italic;">暫無修行記錄</p>';
+            }
+            
+            // 更新轉賬記錄
+            const paymentHistoryEl = document.getElementById('paymentHistory');
+            if (paymentHistoryEl) {
+                const recentPayments = payments.slice(-20).reverse();
+                paymentHistoryEl.innerHTML = recentPayments.map(payment => `
+                    <div class="history-item">
+                        <div class="history-info">
+                            ${payment.from} → ${payment.to}: $${payment.amount.toFixed(2)}
+                            <small style="display: block; color: #BCAAA4;">${payment.reason}</small>
+                        </div>
+                        <div class="history-time">${formatDateTime(payment.date)}</div>
+                    </div>
+                `).join('') || '<p style="text-align: center; color: #BCAAA4; font-style: italic;">暫無轉賬記錄</p>';
+            }
+        }
 
-        // 保持原有的所有其他函數：
-        // - loadDataFromFirebase()
-        // - saveToFirebase()
-        // - setupRealtimeListeners()
-        // - saveLocalBackup()
-        // - loadLocalBackup()
-        // - getDefaultTasks()
-        // - 等等...
+        // 🚨 系統函數
+        function showLoading(message = '載入中...') {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingScreen').style.display = 'flex';
+        }
 
-        // 🚀 應用初始化保持原有
+        function hideLoading() {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        function showError(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-error';
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function updateSyncStatus(status) {
+            const syncEl = document.getElementById('syncStatus');
+            syncEl.textContent = status;
+            
+            syncEl.classList.remove('sync-error');
+            if (status.includes('❌') || status.includes('失敗')) {
+                syncEl.classList.add('sync-error');
+            }
+        }
+
+        async function logout() {
+            if (confirm('確定要離開道場嗎？')) {
+                try {
+                    const { signOut } = window.firebaseModules;
+                    
+                    unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+                    unsubscribeFunctions = [];
+                    
+                    await signOut(auth);
+                    currentUser = null;
+                    showLoginScreen();
+                    updateSyncStatus('🔄 連接中...');
+                } catch (error) {
+                    console.error('登出失敗:', error);
+                    showError('登出失敗');
+                }
+            }
+        }
+
+        async function resetData() {
+            if (!confirm('⚠️ 確定要重置道場所有資料嗎？此操作無法復原！')) {
+                return;
+            }
+            
+            if (!confirm('🚨 最後確認：這將刪除所有修行項目、完成記錄和轉賬記錄！')) {
+                return;
+            }
+            
+            tasks = [];
+            completions = [];
+            payments = [];
+            
+            updateUI();
+            await saveToFirebase();
+            showSuccess('道場資料已重置');
+        }
+
+        // 🚀 應用初始化
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🏮 亂道場の修行列表啟動中...');
             
@@ -1324,10 +1857,6 @@
                 showError('應用初始化失敗: ' + error.message);
             }
         });
-
-        // 需要複製的其他原有函數（完整版本應該包含所有函數）
-        // 為了節省空間，這裡只列出修改的重點部分
-        // 實際使用時請確保包含原文件中的所有其他函數
     </script>
 </body>
 </html>
