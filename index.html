@@ -2,6 +2,89 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    
+    <!-- EMERGENCY CACHE BUSTER - Add this FIRST -->
+    <script>
+        // Force complete cache refresh
+        const timestamp = Date.now();
+        const version = 'v3_' + timestamp;
+        
+        // Clear all possible caches
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) {
+                    caches.delete(name);
+                });
+            });
+        }
+        
+        // Clear localStorage and sessionStorage
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch(e) {}
+        
+        // Force service worker update and reload
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                registrations.forEach(function(registration) {
+                    registration.unregister();
+                });
+                setTimeout(() => {
+                    window.location.href = window.location.href.split('?')[0] + '?cb=' + timestamp;
+                }, 100);
+            });
+        } else {
+            window.location.href = window.location.href.split('?')[0] + '?cb=' + timestamp;
+        }
+        
+        console.log('EMERGENCY CACHE CLEAR:', version);
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家務記錄 App - 緊急更新版</title>
+    
+    <!-- Add big visual indicator -->
+    <style>
+        .emergency-update {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: red !important;
+            color: white !important;
+            text-align: center !important;
+            padding: 20px !important;
+            z-index: 99999 !important;
+            font-size: 18px !important;
+            font-weight: bold !important;
+        }
+        body { margin-top: 80px !important; }
+    </style>
+</head>
+<body>
+    <div class="emergency-update">
+        🆘 緊急更新版本 - 如果你看到這個，更新成功了！
+    </div>
+
+    <!-- Your app content here -->
+    <div style="padding: 20px; text-align: center;">
+        <h1>家務記錄 App</h1>
+        <p><strong>這是全新的更新版本！</strong></p>
+        <p>時間戳記: <span id="timestamp"></span></p>
+    </div>
+
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+    </script>
+
+    <!-- DO NOT include service worker or manifest for now -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>家務記錄 App</title>
     
