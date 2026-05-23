@@ -1,34 +1,102 @@
-{
-    "name": "家務記錄 App",
-    "short_name": "家務記錄",
-    "description": "安全的家務記錄和結算應用程式",
-    "version": "2.0.20240101",
-    "start_url": "./index.html?v=20240101&source=pwa",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#4CAF50",
-    "orientation": "portrait",
-    "scope": "./",
-    "categories": ["productivity", "utilities"],
-    "lang": "zh-TW",
-    "icons": [
-        {
-            "src": "./icon-192.png?v=20240101",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "./icon-192.png?v=20240101",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "./icon-192.png?v=20240101",
-            "sizes": "180x180",
-            "type": "image/png",
-            "purpose": "any maskable"
-        }
-    ]
-}
+const CACHE_NAME = 'housework-app-v20240101';
+const APP_VERSION = '2.0.20240101';
+
+const urlsToCache = [
+    './',
+    './index.html',
+    './manifest.json',
+    './icon-192.png'
+];
+
+// Install event
+self.addEventListener('install', function(event) {
+    console.log('Service Worker: Install event', APP_VERSION);
+    
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+        .then(function(cache) {
+            console.log('Service Worker: Caching files');
+            return cache.addAll(urlsToCache);
+        })
+        .then(function() {
+            // Force activation of new service worker
+            return self.skipWaiting();
+        })
+    );
+});
+
+// Activate event
+self.addEventListener('activate', function(event) {
+    console.log('Service Worker: Activate event', APP_VERSION);
+    
+    event.waitUntil(
+        caches.keys().then(function(cacheNames) {
+            return Promise.all(
+                cacheNames.map(function(cacheName) {
+                    // Delete old caches
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('Service Worker: Deleting old cache', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        }).then(function() {
+            // Take control of all clients
+            return self.clients.claim();
+        })
+    );
+});
+
+// Fetch event - Network First strategy for HTML, Cache First for assets
+self.addEventListener('fetch', function(event) {
+    if (event.request.destination === 'document') {
+        // Network first for HTML files
+        event.respondWith(
+            fetch(event.request)
+            .then(function(response) {
+                // Update cache with new version
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then(function(cache) {
+                    cache.put(event.request, responseClone);
+                });
+                return response;
+            })
+            .catch(function() {
+                // Fallback to cache if network fails
+                return caches.match(event.request);
+            })
+        );
+    } else {
+        // Cache first for other resources
+        event.respondWith(
+            caches.match(event.request)
+            .then(function(response) {
+                return response || fetch(event.request);
+            })
+        );
+    }
+});
+
+// Handle messages from main thread
+self.addEventListener('message', function(event) {
+    if (event.data && event.data.command === 'checkForUpdate') {
+        // Force update check
+        self.registration.update();
+    }
+});
+
+// Handle push notifications (optional)
+self.addEventListener('push', function(event) {
+    if (event.data) {
+        const notificationData = event.data.json();
+        
+        event.waitUntil(
+            self.registration.showNotification(notificationData.title, {
+                body: notificationData.body,
+                icon: './icon-192.png',
+                badge: './icon-192.png',
+                tag: 'update-notification'
+            })
+        );
+    }
+});
