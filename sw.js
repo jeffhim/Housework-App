@@ -1,4 +1,4 @@
-const CACHE_NAME = 'housework-app-v2';
+const CACHE_NAME = 'housework-app-v3';
 const urlsToCache = [
   '/',
   '/index.html',
